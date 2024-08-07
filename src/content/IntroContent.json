@@ -1,13 +1,9 @@
 {
-  "title": "Kode Komplete Home",
-  "text": "Under construction.  Please visit another time.",
+  "title": "Kode Komplete",
+  "text": "With over 20 years of software development experience, Kode Komplete will work with your organization to solve their specific business requirements.  We work in building solutions with both On-Premise and SaaS.",
   "button": [
     {
       "title": "Explore"
-    },
-    {
-      "title": "Learn more",
-      "color": "#fff"
     }
   ]
 }
