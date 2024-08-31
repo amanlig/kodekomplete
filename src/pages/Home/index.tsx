@@ -2,8 +2,6 @@ import { lazy } from "react";
 import IntroContent from "../../content/IntroContent.json";
 import AboutContent from "../../content/AboutContent.json";
 import MissionContent from "../../content/MissionContent.json";
-import ServiceContent from "../../content/ServiceContent.json";
-import ContactContent from "../../content/ContactContent.json";
 
 const Container = lazy(() => import("../../common/Container"));
 const ScrollToTop = lazy(() => import("../../common/ScrollToTop"));
@@ -17,8 +15,7 @@ const Home = () => {
         direction="right"
         title={IntroContent.title}
         content={IntroContent.text}
-        button={IntroContent.button}
-        icon="developer.svg"
+        icon="shadowfax.png"
         id="intro"
       />
       <ContentBlock
@@ -26,22 +23,15 @@ const Home = () => {
         title={AboutContent.title}
         content={AboutContent.text}
         //section={AboutContent.section}
-        icon="graphs.svg"
+        icon="aboutus.jpg"
         id="about"
       />
       <ContentBlock
         direction="right"
         title={MissionContent.title}
         content={MissionContent.text}
-        icon="product-launch.svg"
-        id="mission"
-      />
-      <ContentBlock
-        direction="left"
-        title={ServiceContent.title}
-        content={ServiceContent.text}
-        icon="waving.svg"
-        id="product"
+        icon="cr.png"
+        id="reviews"
       />
     </Container>
   );

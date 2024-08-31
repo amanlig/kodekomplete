@@ -2,11 +2,10 @@ import { useState } from "react";
 import { Row, Col, Drawer } from "antd";
 import { withTranslation, TFunction } from "react-i18next";
 import Container from "../../common/Container";
-import { SvgIcon } from "../../common/SvgIcon";
-import { Button } from "../../common/Button";
+
 import {
   HeaderSection,
-  LogoContainer,
+
   Burger,
   NotHidden,
   Menu,
@@ -36,11 +35,8 @@ const Header = ({ t }: { t: TFunction }) => {
         <CustomNavLinkSmall onClick={() => scrollTo("about")}>
           <Span>{t("About")}</Span>
         </CustomNavLinkSmall>
-        <CustomNavLinkSmall onClick={() => scrollTo("mission")}>
-          <Span>{t("Mission")}</Span>
-        </CustomNavLinkSmall>
-        <CustomNavLinkSmall onClick={() => scrollTo("product")}>
-          <Span>{t("Services")}</Span>
+        <CustomNavLinkSmall onClick={() => scrollTo("reviews")}>
+          <Span>{t("Reviews")}</Span>
         </CustomNavLinkSmall>
       </>
     );
