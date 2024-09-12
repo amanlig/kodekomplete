@@ -6,6 +6,7 @@ import MissionContent from "../../content/MissionContent.json";
 const Container = lazy(() => import("../../common/Container"));
 const ScrollToTop = lazy(() => import("../../common/ScrollToTop"));
 const ContentBlock = lazy(() => import("../../components/ContentBlock"));
+const ReviewBlock = lazy(() => import("../../components/ReviewBlock"));
 
 const Home = () => {
   return (
@@ -26,13 +27,7 @@ const Home = () => {
         icon="aboutus.jpg"
         id="about"
       />
-      <ContentBlock
-        direction="right"
-        title={MissionContent.title}
-        content={MissionContent.text}
-        icon="cr.png"
-        id="reviews"
-      />
+      <ReviewBlock/>
     </Container>
   );
 };
