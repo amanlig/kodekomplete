@@ -1,7 +1,6 @@
 import { lazy } from "react";
 import IntroContent from "../../content/IntroContent.json";
 import AboutContent from "../../content/AboutContent.json";
-import MissionContent from "../../content/MissionContent.json";
 
 const Container = lazy(() => import("../../common/Container"));
 const ScrollToTop = lazy(() => import("../../common/ScrollToTop"));
@@ -27,7 +26,12 @@ const Home = () => {
         icon="aboutus.jpg"
         id="about"
       />
-      <ReviewBlock/>
+      <ReviewBlock
+        direction="right"
+        title="Customer Reviews"
+        id="reviews"
+        icon="cr.png"
+      />
     </Container>
   );
 };

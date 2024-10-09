@@ -14,8 +14,7 @@ export interface TestItem {
 }
 
 export interface TripAdvisorReview {
-  id: number;
   location_id: number;
-  title: string;
-  text: string;
+  name: string;
+  description: string;
 }
