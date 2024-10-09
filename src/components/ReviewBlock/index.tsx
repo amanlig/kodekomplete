@@ -29,9 +29,10 @@ const ReviewBlock =  ({
         const response = await fetch('https://api.content.tripadvisor.com/api/v1/location/8459167/reviews?language=en&key=3B95135774E648E59A6282AA0DCFFA7E', {
           method: 'GET',
           headers: {
-            'Origin': 'https://www.amanlig.com',
-            'Referer': 'https://www.amanlig.com',
-            'Content-Type': 'application/json'
+            'Access-Control-Allow-Methods': 'GET',
+            'Access-Control-Allow-Origin': 'https://www.amanlig.com',
+            'Content-Type': 'application/json',
+            'Referer': 'https://www.amanlig.com'  
           }
       });
         const result = await response.json();
