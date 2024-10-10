@@ -11,7 +11,6 @@ import {
   StyledRow,
 } from "./styles";
 import SwipeSelectionPage from '../ReviewCard';
-import { log } from 'console';
 
 
 const ReviewBlock =  ({
@@ -29,10 +28,9 @@ const ReviewBlock =  ({
         const response = await fetch('https://api.content.tripadvisor.com/api/v1/location/8459167/reviews?language=en&key=3B95135774E648E59A6282AA0DCFFA7E', {
           method: 'GET',
           headers: {
-            'Access-Control-Allow-Methods': 'GET',
-            'Access-Control-Allow-Origin': 'https://www.amanlig.com',
             'Content-Type': 'application/json',
-            'Referer': 'https://www.amanlig.com'  
+            'Origin': 'https://amanlig.com',
+            'Referer': 'https://amanlig.com'
           }
       });
         const result = await response.json();
