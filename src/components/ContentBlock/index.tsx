@@ -49,6 +49,12 @@ const ContentBlock = ({
             <ContentWrapper>
               <h6>{t(title)}</h6>
               <Content>{t(content)}</Content>
+              <br/>
+              <a href="https://tc.canada.ca/en/marine-transportation/preparing-operate-your-vessel/filing-trip-plan/personal-boating-trip-plan-form">Transport Canada Float Plan</a>
+              <br/>
+              <a href="https://csbc.ca/en/float-plans">Canadian Safe Boating Council Float Plan</a>
+              <br/>
+              <a href="https://floatplancentral.cgaux.org/download/USCGFloatPlan.pdf">US Coast Guard Float Plan</a>
               {direction === "right" ? (
                 <ButtonWrapper>
                   {typeof button === "object" &&
