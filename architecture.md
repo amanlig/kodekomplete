@@ -29,6 +29,10 @@ Adapted from the [arc42 template](https://arc42.org/overview/). Official templat
 
 ## 1. Introduction and Goals
 
+Marine navigation has quite a number of challenges such as onboard power consumption efficiency, engine maintenance records just to name a few.  aiNavLog is developed to aid in real-time critical thinking. 
+
+The goal is to develop an application that is always available and ready to provide assistance to the captain at any moment.
+
 ### 1.1 Purpose
 
 aiNavLog is an advanced analytics application that supports recreational boaters in making informed, real-time decisions. It provides recommendations using the user's own data and learning from the collective data and experiences of other mariners using aiNavLog.
@@ -94,3 +98,36 @@ flowchart LR
     Boater -->|"Chooses whether and when to upload"| System
     Device -->|"Photos, videos, and selected data"| System
     Instruments -.->|"Instrument data - interface TBD"| System
+
+## 4. Solution Strategy
+
+### 4.1 Application availability
+
+The intent is to make the application generally avaialble and easily installable by users who have smartphones such as iPhone or Android.  
+
+When connected to the internet, the application is also available in the cloud by accessing a url in the user's preferred browser.
+
+To maximize availability, the application will be available in Windows and macOS. 
+
+### 4.2 Data Security
+
+Users own their data and these are primarily (by default) in their smartphone.  
+
+Users can opt to upload their data to the cloud for backup.  AWS cloud services and storage will be used to enable this functionality.
+
+### 4.3 Communication
+
+Bluetooth or WiFi should be the primary mechanism for the application to communicate with external devices.
+
+TLS 1.3 will be used to communicate with AWS cloud services.
+
+### 4.4 User inputs
+
+Users can use the built-in camera to take photos and videos.
+Users can use the built-in microphone to talk to the application.
+Manual entries will be supported 
+
+### 4.5 Portability
+
+The application's front end will be developed with ReactNative 
+
