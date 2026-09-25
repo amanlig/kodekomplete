@@ -31,11 +31,11 @@ Adapted from the [arc42 template](https://arc42.org/overview/). Official templat
 
 Recreational boaters need a convenient way to record onboard observations, media, and maintenance information. The initial version of aiNavLog focuses on collecting and storing this data. 
 
-The goal is to make onboard data capture readily available to the captain, with optional cloud backup.
+The goal is to make onboard data capture readily available to the captain, with local data storage.
 
 ### 1.1 Purpose
 
-aiNavLog initially provides manual and voice entry, photo and video capture, external-device communication, local data storage, and optional cloud backup. Recommendations, model training, and collective training-data collection are deferred beyond the initial version.
+aiNavLog initially provides manual and voice entry, photo and video capture, external-device communication, and local data storage. Recommendations, model training, and collective training-data collection are deferred beyond the initial version.
 
 ### 1.2 Confirmed initial-version capabilities
 
@@ -45,10 +45,8 @@ aiNavLog initially provides manual and voice entry, photo and video capture, ext
 | R-03 | Support voice entries through a microphone. |
 | R-04 | Support manual entries. |
 | R-05 | Communicate with external devices, such as Heart Interface, through a Device Interface and incorporate onboard instrument data; specific models and protocols are TBD. |
-| R-06 | Allow optional bulk uploads to cloud storage. |
-| R-07 | Use cloud services to pull data from users' devices into cloud storage. |
 
-Requirement IDs are retained for traceability; R-01, R-08, and R-09 are deferred beyond the initial version.
+Requirement IDs are retained for traceability. R-06 and R-07 (cloud uploads and cloud-initiated data retrieval) are removed from scope. R-01, R-08, and R-09 remain deferred beyond the initial version.
 
 ### 1.3 Stakeholders
 
@@ -66,36 +64,34 @@ Reliable data capture, usability aboard a boat, handling interrupted connectivit
 
 | Constraint | Status |
 | --- | --- |
-| Users choose whether and when to upload data to the cloud. | Confirmed |
-| Cloud services pull device data into cloud storage. | Confirmed intent; transfer mechanism TBD |
-| Cloud storage provider is not selected. | Confirmed |
+| Application data is stored locally; cloud upload and cloud backup are outside scope. | Confirmed |
 | Heart Interface is an example external device; specific models and integration protocols are TBD. | Confirmed |
 | Supported operating systems, frameworks, budget, and delivery dates | TBD |
 
-The iPhone is an example data source, not a confirmed exclusive platform. Offline capture behavior and backup retry behavior remain TBD.
+The iPhone is an example data source, not a confirmed exclusive platform. Local storage behavior and handling of interrupted device connections remain TBD.
 
 ## 3. Context and Scope
 
 ### 3.1 Business context
 
-Recreational boaters use aiNavLog to capture manual entries, voice, photos, videos, and onboard device observations. Data is stored primarily on the smartphone. Users choose whether and when to back up selected data to cloud storage.
+Recreational boaters use aiNavLog to capture manual entries, voice, photos, videos, and onboard device observations. Data is stored locally on the user's device.
 
 ### 3.2 System context diagram
 
-The initial-version system boundary includes the application, Device Interface, local storage, optional cloud transfer, and cloud backup storage. AWS is the cloud direction in Section 4; specific services remain TBD.
+The initial-version system boundary includes the user interface, data capture, Device Interface, and local storage.
 
 ```mermaid
 flowchart LR
     Boater["Recreational boater"]
     Device["User device storage"]
     Instruments["External devices / onboard instruments (e.g., Heart Interface)"]
-    System["aiNavLog system: data capture, device communication, storage, and optional cloud backup"]
+    System["aiNavLog system: data capture, device communication, and local storage"]
 
     Boater -->|"Voice and manual entries"| System
-    Boater -->|"Chooses whether and when to upload"| System
-    Device -->|"Photos, videos, and selected data"| System
+    Device -->|"Read photos and videos"| System
+    System -->|"Save entries, media, and device observations"| Device
     Instruments -.->|"Instrument data - interface TBD"| System
-    System -->|"Capture and backup feedback"| Boater
+    System -->|"Save status and errors"| Boater
 ```
 
 ## 4. Solution Strategy
@@ -104,21 +100,21 @@ flowchart LR
 
 The intent is to make the application generally avaialble and easily installable by users who have smartphones such as iPhone or Android.  
 
-When connected to the internet, the application is also available in the cloud by accessing a url in the user's preferred browser.
+Browser access remains a platform target. Web hosting and browser-local persistence are TBD; browser access does not include uploading user data.
 
 To maximize availability, the application will be available in Windows and macOS. 
 
 ### 4.2 Data Security
 
-Users own their data and these are primarily (by default) in their smartphone.  
+Users own their data, which is stored locally on the device running the application.  
 
-Users can opt to upload their data to the cloud for backup.  AWS cloud services and storage will be used to enable this functionality.
+Local storage technology, access protection, and retention behavior remain TBD.
 
 ### 4.3 Communication
 
 Bluetooth or WiFi should be the primary mechanism for the application to communicate with external devices. A dedicated Device Interface will handle communication with devices such as Heart Interface and pass observations to data capture. Specific device models, supported protocols, and any required adapters or gateways remain TBD; Bluetooth or WiFi support is not assumed for every device.
 
-TLS 1.3 will be used to communicate with AWS cloud services.
+Device communication security will be determined by the selected device protocols and adapters.
 
 ### 4.4 User inputs
 
@@ -139,46 +135,38 @@ The application's front end will be developed with ReactNative
 ```mermaid
 flowchart TB
     Boater["Recreational boater"]
-    Device["Device storage, camera, and microphone"]
+    Device["Camera and microphone"]
+    Storage[("Device storage: all local user data")]
     Instruments["External devices / onboard instruments (e.g., Heart Interface)"]
     subgraph System["aiNavLog system"]
         UI["User interface"]
         Capture["Data capture"]
         DeviceInterface["Device Interface"]
-        Local[("Local user data")]
-        Transfer["Optional cloud transfer"]
-        Cloud[("Cloud data storage")]
         UI -->|"Manual input and capture requests"| Capture
         DeviceInterface -->|"Normalized device observations"| Capture
-        Capture -->|"Entries and observations"| Local
-        UI -->|"Upload selection and authorization"| Transfer
-        Local -->|"Selected data pulled by cloud services"| Transfer
-        Transfer -->|"Selected backup data"| Cloud
     end
-    Boater -->|"Entries, requests, and upload choices"| UI
-    UI -->|"Capture and backup feedback"| Boater
-    Device -->|"Photos, videos, and voice input"| Capture
-    Instruments <-->|"Device communication; protocol / transport TBD"| DeviceInterface
+    Boater -->|"Entries and capture requests"| UI
+    UI -->|"Save status and errors"| Boater
+    Device -->|"New photos, videos, and voice input"| Capture
+    Capture <-->|"Read existing media / save entries, media, and observations"| Storage
+    Instruments -->|"Read-only device observations; protocol / transport TBD"| DeviceInterface
 ```
+
+All aiNavLog user data resides in local storage on the device running the application: entries, photos, videos, voice recordings, and device observations. The single storage node includes both existing media read by data capture and data saved by aiNavLog; it does not imply a single database or folder.
 
 ### 5.2 Building block responsibilities
 
 | Building block | Responsibility and main interfaces | Scope basis |
 | --- | --- | --- |
-| User interface | Provide data entry, capture feedback, and upload controls. React Native is the frontend direction; platform-specific implementation for the targets in Section 4 remains TBD. | R-02–R-04, R-06; Sections 4.1, 4.4, 4.5 |
+| User interface | Provide data entry, save status, and error messages. React Native is the frontend direction; platform-specific implementation for the targets in Section 4 remains TBD. | R-02–R-04; Sections 4.1, 4.4, 4.5 |
 | Data capture | Acquire existing and newly captured media, microphone input, manual entries, and normalized observations from the Device Interface. Supply data to local storage. Voice/media processing remains TBD. | R-02–R-05; Section 4.4 |
 | Device Interface | Encapsulate communication with external devices such as Heart Interface. Manage connections and device-specific protocol adapters, normalize received observations, and pass them to data capture. Specific models, protocols, and any required gateways remain TBD. | R-05; Section 4.3 |
-| Local user data | Retain primary user data on the smartphone by default. Supply selected data for authorized backup transfers. Storage technology and browser/desktop data handling remain TBD. | Section 4.2 |
-| Optional cloud transfer | Honor whether and when users choose to upload, including bulk uploads. Coordinate cloud-initiated retrieval into AWS storage over TLS 1.3. Device reachability, permissions, retries, and the pull mechanism remain TBD. | R-06, R-07; Sections 2, 4.2, 4.3 |
-| Cloud data storage | Store user-authorized backups. Specific AWS services, retention, and restore behavior remain TBD. | R-06, R-07; Section 4.2 |
+| Device storage | Provide existing media to data capture and retain all aiNavLog user data (entries, photos, videos, voice recordings, and device observations) locally on the device running the application. Storage technology and browser/desktop data handling remain TBD. | Section 4.2 |
 
 ### 5.3 Interfaces and open decisions
 
-- Offline capture, synchronization, backup retries, and restore behavior remain TBD.
+- Local persistence, storage limits, and offline capture behavior across supported platforms remain TBD.
 
-- Device Interface isolates device-specific communication from data capture. The two-way link represents protocol exchanges; device-control capabilities and supported commands remain TBD.
+- Device Interface isolates device-specific communication from data capture. The one-way link represents read-only observations from external devices; the Device Interface does not send commands to external devices.
 
-- Arrows describe data flow, not network connection initiation. Cloud services are intended to pull authorized data; the mechanism must account for device connectivity and platform restrictions.
-- Section 2 lists cloud-provider and platform choices as undecided, while Section 4 specifies AWS, platform targets, and React Native. This view follows Section 4; the earlier statements need reconciliation.
-
-
+- Section 2 lists platform choices as undecided, while Section 4 specifies platform targets and React Native. This view follows Section 4; the earlier statements need reconciliation.
