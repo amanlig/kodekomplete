@@ -3,7 +3,7 @@
 | Document field | Value |
 | --- | --- |
 | Status | Draft — requirements captured; implementation architecture pending |
-| Updated | 2026-09-28 |
+| Updated | 2026-09-29 |
 | Owner | TBD |
 | Structure | arc42 |
 | Format | GitHub Markdown with Mermaid diagrams |
@@ -60,6 +60,8 @@ Requirement IDs are retained for traceability. R-06 and R-07 (cloud uploads and 
 
 ### 1.4 Quality goals
 
+**Confirmed:** Minimize the initial download size so users can download and install aiNavLog over the internet as quickly as possible. Keep the dependency footprint small. Platform-specific download-size budgets and download-time targets under defined network conditions remain TBD.
+
 Reliable data capture, usability aboard a boat, handling interrupted connectivity, and responsible data handling are proposed quality goals. Measurable acceptance criteria remain TBD.
 
 ## 2. Constraints
@@ -68,6 +70,7 @@ Reliable data capture, usability aboard a boat, handling interrupted connectivit
 | --- | --- |
 | Application data is stored locally; cloud backup and general cloud upload are outside scope. User-initiated export of selected route content to Facebook or Instagram for story sharing is permitted by R-10. | Confirmed |
 | Heart Interface is an example external device; specific models and integration protocols are TBD. | Confirmed |
+| Rust is the implementation language for services within the aiNavLog system. | Confirmed |
 | Supported operating systems, frameworks, budget, and delivery dates | TBD |
 
 R-11 requires external identity-provider communication for sign-in. Authentication exchanges do not upload boat logs, routes, or media; any hosted identity/session metadata and authentication service deployment remain proposed decisions in Section 4.7.
@@ -106,7 +109,11 @@ flowchart LR
 
 ### 4.1 Application availability
 
-The intent is to make the application generally avaialble and easily installable by users who have smartphones such as iPhone or Android.  
+The intent is to make the application generally available and easily installable by users who have smartphones such as iPhone or Android.
+
+**Confirmed:** Fast initial download and installation are priorities. Minimize the bytes transferred for installation and avoid unnecessary dependencies and bundled assets.
+
+**Proposed:** Use optimized release builds and platform-specific distribution packages, remove unused code and assets where supported, and compress bundled media. Defer optional large assets until the user requests the related feature; include the resources needed for initial local data capture so first use does not require an additional download. Measure the delivered download size separately from installed size for each supported platform, and review dependency additions for their impact on both. Concrete size budgets and representative network conditions remain TBD.
 
 Browser access remains a platform target. Web hosting and browser-local persistence are TBD; browser access does not include general cloud upload. Route story export is user-initiated; support for direct handoff on each platform remains TBD.
 
@@ -161,6 +168,10 @@ Route selection and image preparation should work offline with locally available
 Boat logs, routes, and media remain local. Authentication does not add synchronization or cloud backup. A hosted authentication component, if selected, should retain only required identity/session metadata; retention and account deletion need definition. Sign-out clears the application session and credentials without implicitly deleting local boating data or claiming to sign the user out of the provider's other apps.
 
 **Open product decisions:** Whether sign-in is mandatory or guest use is supported; which features require a session; offline access and session expiry; local data ownership and isolation when switching accounts; account deletion, revocation, and recovery. These decisions must be resolved before using authentication to gate access to existing local records.
+
+### 4.8 Service implementation language
+
+**Confirmed:** Rust is the chosen implementation language for services within the aiNavLog system. The frontend uses React Native as described in Section 4.5. Service boundaries, deployment locations, Rust frameworks, and frontend-to-service integration remain TBD.
 
 ## 5. Building Block View
 
