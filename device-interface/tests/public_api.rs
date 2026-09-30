@@ -39,9 +39,20 @@ fn check_transport(adapter: &mut dyn TransportAdapter, device: &DeviceDescriptor
     assert_not_implemented(adapter.disconnect());
 }
 
-#[test]
-fn bluetooth_stub_does_not_claim_hardware_access() {
-    check_transport(&mut BluetoothAdapter, &device(TransportKind::Bluetooth));
+#[tokio::test]
+async fn bluetooth_rejects_invalid_requests_without_hardware() {
+    let mut adapter = BluetoothAdapter::default();
+    assert!(adapter.discover(Duration::ZERO).await.is_err());
+    assert_eq!(
+        adapter.connect(&device(TransportKind::Wifi)).await,
+        Err(DeviceError::UnsupportedProtocol)
+    );
+    assert!(adapter
+        .connect(&device(TransportKind::Bluetooth))
+        .await
+        .is_err());
+    assert!(adapter.connect_by_id("not-a-device-address").await.is_err());
+    assert_eq!(adapter.disconnect().await, Ok(()));
 }
 
 #[test]

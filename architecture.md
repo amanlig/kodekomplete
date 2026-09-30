@@ -3,7 +3,7 @@
 | Document field | Value |
 | --- | --- |
 | Status | Draft — requirements captured; implementation architecture pending |
-| Updated | 2026-09-29 |
+| Updated | 2026-09-30 |
 | Owner | TBD |
 | Structure | arc42 |
 | Format | GitHub Markdown with Mermaid diagrams |
@@ -44,7 +44,7 @@ aiNavLog initially provides manual and voice entry, photo and video capture, ext
 | R-02 | Accept photos and videos from local device storage, such as an iPhone. |
 | R-03 | Support voice entries through a microphone. |
 | R-04 | Support manual entries. |
-| R-05 | Communicate with external devices, such as Heart Interface, through a Device Interface and incorporate onboard instrument data; specific models and protocols are TBD. |
+| R-05 | Communicate with external devices, such as Heart Interface, through a Device Interface and incorporate onboard instrument data using NMEA 0183 and NMEA 2000 for NMEA-compliant devices; specific models and supported messages remain TBD. |
 | R-10 | Enable boaters to share their routes as a Facebook or Instagram story. |
 | R-11 | Support OAuth-based sign-in with Google, Facebook, and Apple. |
 
@@ -71,7 +71,8 @@ Reliable data capture, usability aboard a boat, handling interrupted connectivit
 | Application data is stored locally; cloud backup and general cloud upload are outside scope. User-initiated export of selected route content to Facebook or Instagram for story sharing is permitted by R-10. | Confirmed |
 | Heart Interface is an example external device; specific models and integration protocols are TBD. | Confirmed |
 | Rust is the implementation language for services within the aiNavLog system. | Confirmed |
-| Supported operating systems, frameworks, budget, and delivery dates | TBD |
+| Beta deployment targets are iOS and Android. Minimum OS versions, supported device architectures, budget, and delivery dates remain TBD. | Confirmed targets; details TBD |
+| Dependency licenses must preserve distribution on both beta targets. Prefer permissive dependencies and retain required third-party notices. | Confirmed objective; implementation policy in [library licenses](docs/library-licenses.md#mobile-beta-distribution-policy) |
 
 R-11 requires external identity-provider communication for sign-in. Authentication exchanges do not upload boat logs, routes, or media; any hosted identity/session metadata and authentication service deployment remain proposed decisions in Section 4.7.
 
@@ -109,15 +110,15 @@ flowchart LR
 
 ### 4.1 Application availability
 
-The intent is to make the application generally available and easily installable by users who have smartphones such as iPhone or Android.
+**Confirmed:** The beta release targets iOS and Android. Make the application easily installable on these mobile platforms. Dependency selection must preserve distribution on both targets; see the [mobile beta licensing policy](docs/library-licenses.md#mobile-beta-distribution-policy).
 
 **Confirmed:** Fast initial download and installation are priorities. Minimize the bytes transferred for installation and avoid unnecessary dependencies and bundled assets.
 
 **Proposed:** Use optimized release builds and platform-specific distribution packages, remove unused code and assets where supported, and compress bundled media. Defer optional large assets until the user requests the related feature; include the resources needed for initial local data capture so first use does not require an additional download. Measure the delivered download size separately from installed size for each supported platform, and review dependency additions for their impact on both. Concrete size budgets and representative network conditions remain TBD.
 
-Browser access remains a platform target. Web hosting and browser-local persistence are TBD; browser access does not include general cloud upload. Route story export is user-initiated; support for direct handoff on each platform remains TBD.
+Browser access remains a longer-term platform target outside the mobile beta. Web hosting and browser-local persistence are TBD; browser access does not include general cloud upload. Route story export is user-initiated; support for direct handoff on each platform remains TBD.
 
-To maximize availability, the application will be available in Windows and macOS. 
+Windows and macOS remain longer-term availability targets. Desktop CLI builds support development and evaluation; they are not beta deployment targets.
 
 ### 4.2 Data Security
 
@@ -127,7 +128,13 @@ Local storage technology, access protection, and retention behavior remain TBD. 
 
 ### 4.3 Communication
 
-Bluetooth or WiFi should be the primary mechanism for the application to communicate with external devices. A dedicated Device Interface will handle communication with devices such as Heart Interface and pass observations to data capture. Specific device models, supported protocols, and any required adapters or gateways remain TBD; Bluetooth or WiFi support is not assumed for every device.
+Bluetooth or WiFi should be the primary mechanism for the application to communicate with external devices. A dedicated Device Interface will handle communication with devices such as Heart Interface and pass observations to data capture. Specific device models and any required adapters or gateways remain TBD; Bluetooth or WiFi support is not assumed for every device.
+
+**Confirmed (R-05):** Utilize NMEA 0183 and NMEA 2000 as communication standards for integration with other onboard NMEA-compliant devices through the Device Interface.
+
+**Proposed:** Provide separate protocol adapters for NMEA 0183 and NMEA 2000, using compatible adapters or gateways to connect them to the application over Bluetooth or WiFi where supported. Normalize received instrument observations for data capture and local storage. The initial integration remains read-only and does not introduce boat-equipment control commands. Supported messages, device compatibility, gateway selection, and platform support remain TBD; NMEA support is not assumed for any particular Heart Interface model.
+
+**Research:** See [Rust Bluetooth libraries](docs/rust-bluetooth-libraries.md) for candidate libraries, platform support, and a proposed evaluation approach. Library and gateway selection remain open.
 
 Device communication security will be determined by the selected device protocols and adapters.
 
@@ -207,7 +214,7 @@ flowchart TB
     Sharing -->|"Preview and export status"| UI
     Sharing -->|"Save story image for manual sharing"| Device
     Sharing -->|"User-approved story handoff; support TBD"| Social
-    Instruments -->|"Read-only device observations; protocol / transport TBD"| DeviceInterface
+    Instruments -->|"Read-only device observations; NMEA 0183 / NMEA 2000; transport TBD"| DeviceInterface
 ```
 
 All primary aiNavLog user data, including saved routes, resides in local storage on the device running the application: entries, photos, videos, voice recordings, and device observations. The User device node groups camera, microphone, existing media, application data, and protected credentials. Storage access includes both existing media read by data capture and data saved by aiNavLog; it does not imply a single database or folder. Route story sharing creates a selected export; copies shared to Facebook or Instagram reside outside aiNavLog.
@@ -218,7 +225,7 @@ All primary aiNavLog user data, including saved routes, resides in local storage
 | --- | --- | --- |
 | User interface | Provide provider sign-in choices, session status and sign-out, data entry, route selection, story preview and export controls, save status, and error messages. React Native is the frontend direction; platform-specific implementation for the targets in Section 4 remains TBD. | R-02–R-04, R-10–R-11; Sections 4.1, 4.4–4.7 |
 | Data capture | Acquire existing and newly captured media, microphone input, manual entries, and normalized observations from the Device Interface. Supply data to local storage. Voice/media processing remains TBD. | R-02–R-05; Section 4.4 |
-| Device Interface | Encapsulate communication with external devices such as Heart Interface. Manage connections and device-specific protocol adapters, normalize received observations, and pass them to data capture. Specific models, protocols, and any required gateways remain TBD. | R-05; Section 4.3 |
+| Device Interface | Encapsulate communication with external devices such as Heart Interface. Manage connections and device-specific protocol adapters, normalize received observations, and pass them to data capture. Use NMEA 0183 and NMEA 2000 for compatible onboard devices; specific models, supported messages, and any required gateways remain TBD. | R-05; Section 4.3 |
 | Route story sharing | Read selected route data and media locally, compose a preview, generate a story image, and manage platform handoff or local image export. Report cancellation and failures without claiming publication. Platform adapters and temporary-file cleanup remain TBD. | R-10; Section 4.6 |
 | Authentication | Encapsulate Google, Facebook, and Apple sign-in, callback and identity verification, session lifecycle, and sign-out. Use protected credential storage; any required trusted service deployment remains TBD. | R-11; Section 4.7 |
 | User device / Device storage | Provide camera and microphone access, existing media to data capture and retain all aiNavLog user data (entries, saved routes, photos, videos, voice recordings, device observations, and exported story images) locally on the device running the application. Storage technology and browser/desktop data handling remain TBD. | Section 4.2 |
@@ -343,7 +350,7 @@ flowchart LR
 | --- | --- | --- |
 | Connection manager | Track selected device, availability, connection lifecycle, and reconnection policy. | UI commands/status; transport lifecycle. |
 | Transport adapters | Encapsulate supported Bluetooth or WiFi access and platform permissions. | Received frames and transport errors to protocol adapters. |
-| Device protocol adapters | Decode supported device messages and identify source readings. | Raw frames in; typed readings or decoding errors out. |
+| Device protocol adapters | Decode supported NMEA 0183 and NMEA 2000 messages and identify source readings. | Raw frames in; typed readings or decoding errors out. |
 | Observation normalizer | Produce a common measurement envelope with source, observation/receipt time, quantity, unit, value, and quality status. | Validated envelope to Data capture. |
 
 Instrument readings flow into aiNavLog. Connection setup may require protocol handshakes or subscriptions, but this design exposes no boat-equipment control commands. Unsupported protocols and stale or invalid readings must be visible rather than presented as current measurements. Device models, adapters/gateways, sampling, buffering, and reconnect limits remain TBD; no specific Heart Interface protocol is assumed.

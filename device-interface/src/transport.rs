@@ -22,11 +22,7 @@ pub trait TransportAdapter {
     }
 }
 
-/// Placeholder; no Bluetooth variant, SDK, or platform is selected.
-#[derive(Default)]
-pub struct BluetoothAdapter;
-
-impl TransportAdapter for BluetoothAdapter {}
+pub use crate::bluetooth::BluetoothAdapter;
 
 /// Placeholder; socket type, discovery, and gateway details remain TBD.
 #[derive(Default)]

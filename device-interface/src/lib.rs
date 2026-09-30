@@ -1,7 +1,6 @@
-//! OS-independent Device Interface contracts for architecture section 5.4.3.
-//! Operational methods are stubs and return `DeviceError::NotImplemented`.
-//! No React Native, hardware SDK, or platform implementation is included.
+//! Device Interface contracts and an async btleplug BLE evaluation adapter.
 
+pub mod bluetooth;
 pub mod connection;
 pub mod normalizer;
 pub mod protocol;
