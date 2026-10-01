@@ -43,10 +43,6 @@ fn check_transport(adapter: &mut dyn TransportAdapter, device: &DeviceDescriptor
 async fn bluetooth_rejects_invalid_requests_without_hardware() {
     let mut adapter = BluetoothAdapter::default();
     assert!(adapter.discover(Duration::ZERO).await.is_err());
-    assert_eq!(
-        adapter.connect(&device(TransportKind::Wifi)).await,
-        Err(DeviceError::UnsupportedProtocol)
-    );
     assert!(adapter
         .connect(&device(TransportKind::Bluetooth))
         .await
@@ -55,9 +51,12 @@ async fn bluetooth_rejects_invalid_requests_without_hardware() {
     assert_eq!(adapter.disconnect().await, Ok(()));
 }
 
+struct StubTransport;
+impl TransportAdapter for StubTransport {}
+
 #[test]
-fn wifi_stub_does_not_claim_hardware_access() {
-    check_transport(&mut WifiAdapter, &device(TransportKind::Wifi));
+fn default_transport_does_not_claim_hardware_access() {
+    check_transport(&mut StubTransport, &device(TransportKind::Bluetooth));
 }
 
 struct StubProtocol;
@@ -75,15 +74,19 @@ fn default_protocol_does_not_claim_support_or_invent_readings() {
 }
 
 #[test]
-fn normalizer_does_not_report_success_for_missing_measurements() {
+fn normalizer_preserves_missing_measurements() {
     let normalizer = ObservationNormalizer::new();
-    assert_not_implemented(normalizer.normalize(&DecodedReading {
-        source_id: "test-instrument".to_owned(),
-        observed_at: None,
-        received_at: SystemTime::UNIX_EPOCH,
-        quantity: "voltage".to_owned(),
-        unit: "V".to_owned(),
-        value: None,
-        quality: QualityStatus::Unknown,
-    }));
+    let observation = normalizer
+        .normalize(&DecodedReading {
+            source_id: "test-instrument".to_owned(),
+            observed_at: None,
+            received_at: SystemTime::UNIX_EPOCH,
+            quantity: "voltage".to_owned(),
+            unit: "V".to_owned(),
+            value: None,
+            quality: QualityStatus::Unknown,
+        })
+        .unwrap();
+    assert_eq!(observation.value, None);
+    assert_eq!(observation.quality, QualityStatus::Unknown);
 }

@@ -6,6 +6,9 @@ components, relationships, and data contracts.
 
 Bluetooth uses [btleplug](https://github.com/deviceplug/btleplug) with Tokio.
 This is Bluetooth Low Energy (BLE) central support, not Bluetooth Classic serial.
+Beta instrument connectivity is Bluetooth-only. Wi-Fi support is shelved for
+post-beta consideration in the [backlog](../docs/backlog.md#wi-fi-instrument-connectivity).
+Both NMEA codecs remain in beta scope.
 
 ## Discover and connect
 
@@ -38,8 +41,8 @@ and disconnection operations have 20-second timeouts. Failures exit nonzero;
 no arguments display help without accessing hardware. An existing connection not
 owned by this adapter is rejected. A failed connection attempts cleanup.
 
-No characteristics are written, no NMEA data is decoded, and no equipment control
-commands are sent. Pairing flows, automatic reconnect, notification subscriptions,
+The BLE CLI writes no characteristics, decodes no NMEA data, and sends no equipment
+control commands. NMEA codecs are available separately through the library API. Pairing flows, automatic reconnect, notification subscriptions,
 and monitoring unexpected remote disconnections are not implemented yet.
 
 ## Platform setup
@@ -73,14 +76,95 @@ Use its async methods inside a Tokio runtime:
   even after a failed connection to clean up a possible partial connection.
 
 The Bluetooth adapter has async inherent methods and does not implement the
-provisional synchronous `TransportAdapter` trait. That trait and `WifiAdapter`,
-`ConnectionManager`, `DeviceProtocolAdapter`, and `ObservationNormalizer` remain
+provisional synchronous `TransportAdapter` trait. That trait, `ConnectionManager`, `DeviceProtocolAdapter` remain
 stubs returning `DeviceError::NotImplemented`. The CLI calls Bluetooth directly.
 The unified transport/connection-manager contract remains future integration work.
+`ObservationNormalizer` now validates and preserves unit-labelled readings. The
+Victron monitor maps vendor records to observations and persists them locally.
 
 Discovery should be allowed to finish so it can stop the OS scan. Dropping/cancelling
 its future is not a substitute for cleanup. Likewise, callers own disconnection;
 there is no async cleanup on drop.
+
+## NMEA decoding and encoding
+
+See the [NMEA library usage guide](../docs/rust-nmea-libraries.md) for complete
+examples, message boundaries, units, error handling and integration limitations.
+
+Requires Rust **1.96+** (CANboat's minimum). `ProtocolDecoder<Input>` and
+`ProtocolEncoder<Message>` are separate interfaces with associated output types.
+`protocol::nmea0183::Nmea0183Codec` uses **nmea-kit 0.8.9**;
+`protocol::nmea2000::Nmea2000Codec` uses **canboat 8.3.0**, with only its `decode`
+feature enabled (which includes encoding). Neither codec accesses hardware.
+
+```rust
+use ainavlog_device_interface::{
+    Nmea0183Codec, Nmea0183Message, Nmea2000Codec, ProtocolDecoder, ProtocolEncoder,
+    protocol::{nmea0183::nmea::Hdt, nmea2000::ids::field::wind_data as wd},
+};
+
+let mut sentences = Nmea0183Codec;
+let heading = sentences.decode("$GPHDT,123.456,T*32")?;
+println!("{:?}", heading.sentence());
+let outbound = Nmea0183Message::from_sentence("GP", &Hdt {
+    heading_true: Some(90.0),
+})?;
+let line = sentences.encode(&outbound)?; // checksum + CRLF
+
+let mut pgns = Nmea2000Codec::default();
+let mut request = pgns.message("windData")?.source(42).destination(255);
+request.push(wd::WIND_SPEED, 5.23)?;
+let frame = pgns.encode(&request)?; // complete PGN payload + CAN metadata
+let wind = pgns.decode(&frame)?;
+println!("{:?}", wind.field(wd::WIND_SPEED));
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+- **0183 input:** one complete ASCII sentence, optionally including CRLF and an
+  IEC tag block. Checksums are checked when supplied; checksumless input is
+  accepted. Encoding always emits a checksum and CRLF. Talker, raw field
+  precision, unknown/proprietary sentences and existing tag blocks are preserved
+  when forwarding. Typed missing/malformed values follow nmea-kit and become
+  `None`; non-finite outbound numbers become empty fields. AIS envelopes are preserved but AIS payload decoding/reassembly is
+  not implemented by this wrapper.
+- **2000 input/output:** CANboat `Frame`, containing a **complete PGN payload**,
+  priority, source, destination and optional timestamp. The caller must handle
+  gateway framing, incoming CAN fast-packet/ISO-TP reassembly and outgoing
+  fragmentation. CANboat builders expose schema fields, enums and repeating sets;
+  omitted fields use schema defaults, including unavailable sentinels. Unknown
+  PGNs follow CANboat's fallback definitions or return a decode error. Payloads
+  shorter than the schema minimum are rejected.
+- `Nmea2000Codec::default()` uses CANboat's Metric units; `new(Units::Si)` selects
+  SI. Consult field units or `as_f64_in(...)` when normalizing. The interfaces keep
+  protocol-specific messages instead of forcing a lossy common measurement model.
+- Device discovery, BLE notification subscriptions, address claiming, actual
+  transmission, and mapping decoded messages into `DecodedReading` remain separate
+  integration work. The existing `DeviceProtocolAdapter` is still a provisional
+  reading/normalization boundary; these codecs do not claim to implement it.
+
+## Victron vendor decoder
+
+The [vendor implementation guide](vendor/README.md) documents the application-owned
+`device-interface/vendor/victron` module. `VictronAdvertisementDecoder` implements
+the shared decoding interface for encrypted Orion-Tr Smart/DC-DC and Orion XS
+Instant Readout advertisements. It requires a device-specific advertisement key.
+Live advertisement reception, key-file loading/reloading, freshness/retry handling
+and SQLite persistence are implemented. See the
+[live monitoring guide](../docs/victron-live-monitoring.md) for commands using the
+recorded device ID, database queries and physical-validation steps.
+
+## Live monitoring and local history
+
+```sh
+cargo run --locked -- monitor-victron 'D4:B3:CB:26:5E:75' --key-file /path/to/orion.key
+cargo run --locked -- observations data/observations.sqlite3 25
+```
+
+Use a private key file (Unix: `chmod 600`); do not pass the key itself on the command
+line. Monitoring scans for broadcasts and requires no GATT connection. Ctrl-C
+stops it. Data is stored locally in SQLite; no data or key is uploaded. The
+[live guide](../docs/victron-live-monitoring.md) covers Windows, recovery behavior,
+missing values, and remaining mobile/hardware validation.
 
 ## Validation
 
@@ -90,8 +174,9 @@ cargo test
 cargo clippy --all-targets -- -D warnings
 ```
 
-Tests validate CLI arguments, Bluetooth request rejection without hardware, and
-remaining stub contracts. Real discovery and connection require a BLE peripheral;
+Tests validate CLI arguments, Bluetooth request rejection without hardware,
+remaining stub contracts, NMEA wire bytes/round trips, metadata, unavailable values,
+and malformed input. Real discovery and connection require a BLE peripheral;
 these tests do not claim radio interoperability or NMEA gateway compatibility.
 
 No application license has been selected. The package is marked `publish = false`.

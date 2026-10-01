@@ -14,6 +14,9 @@ pub enum DeviceError {
     InvalidReading,
     Transport(String),
     Decode(String),
+    Encode(String),
+    Storage(String),
+    Configuration(String),
 }
 
 impl fmt::Display for DeviceError {
@@ -27,7 +30,6 @@ impl std::error::Error for DeviceError {}
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TransportKind {
     Bluetooth,
-    Wifi,
 }
 
 #[derive(Debug, Clone)]

@@ -1,7 +1,7 @@
 # Rust Bluetooth libraries
 
-- **Status:** Research notes; library selection is proposed, not an architecture decision.
-- **Reviewed:** 2026-09-30
+- **Status:** Candidate research retained; btleplug 0.13.3 is installed for the current evaluation implementation.
+- **Candidate research reviewed:** 2026-09-30; local implementation status updated 2026-10-01.
 - **Related strategy:** [Architecture — Communication](../architecture.md#43-communication)
 
 ## Candidates
@@ -18,11 +18,21 @@ The following open-source projects provide Rust Bluetooth APIs or implementation
 
 Desktop and mobile libraries generally expose Rust APIs over the operating system's Bluetooth implementation. TrouBLE implements an embedded BLE host; it is not a replacement for the phone's Bluetooth APIs.
 
-## Proposed evaluation for aiNavLog
+## Current implementation
 
-1. **Evaluate btleplug first if the selected gateway supports BLE.** Prototype discovery, connection, and receipt of instrument observations on a physical iPhone and Android device before committing. Its documented Android setup includes Java/JNI integration, while iOS requires native integration and Bluetooth permission configuration. See the [platform integration notes](https://github.com/deviceplug/btleplug#buildinstallation-notes-for-specific-platforms).
+btleplug 0.13.3 powers discovery, connection/disconnection and live manufacturer
+advertisement reception. The Victron monitor decodes Orion broadcasts, handles
+retries and stale data, and persists observations to SQLite. See the
+[live monitoring guide](victron-live-monitoring.md) and
+[implementation diagram](device-interface-class-diagram.md). Physical Orion and
+mobile validation remain pending; installed library support does not establish
+working iOS/Android app integration.
+
+## Remaining evaluation for aiNavLog
+
+1. **Validate the installed btleplug implementation if the selected gateway supports BLE.** Exercise discovery, connection, and receipt of instrument observations on a physical iPhone and Android device before committing. Its documented Android setup includes Java/JNI integration, while iOS requires native integration and Bluetooth permission configuration. See the [platform integration notes](https://github.com/deviceplug/btleplug#buildinstallation-notes-for-specific-platforms).
 2. **Consider bluer for a Linux test peripheral.** Expose simulated instrument readings over BLE to exercise the application's Device Interface. This would test the application's Bluetooth path, not establish compatibility with real NMEA hardware.
-3. **Choose the gateway before finalizing the library.** BLE and Bluetooth Classic serial communication require different support. A gateway advertising Bluetooth alone does not establish compatibility. Confirm its application-facing protocol, supported platforms, and message formats.
+3. **Validate the gateway against the installed library.** BLE and Bluetooth Classic serial communication require different support. A gateway advertising Bluetooth alone does not establish compatibility. Confirm its application-facing protocol, supported platforms, and message formats.
 4. **Validate React Native integration.** A Rust Bluetooth component needs a native bridge to the application. Evaluate build complexity, permissions, lifecycle behavior, and the dependency/download-size impact alongside connectivity.
 
 ## Relationship to NMEA communication
@@ -36,7 +46,7 @@ NMEA device → compatible gateway → Bluetooth transport adapter
 
 The Bluetooth library handles connectivity. Decoding the gateway's payload and supported NMEA 0183 or NMEA 2000 messages is a separate responsibility. The gateway may translate messages, so its payload must be verified rather than assumed to contain raw NMEA data. This research does not establish compatibility with any particular Heart Interface model or add boat-equipment control commands to the initial read-only integration.
 
-Before adoption, test real gateway interoperability, invalid and stale readings, disconnect/reconnect behavior, offline operation, and phone background/lock behavior. Library version, gateway hardware, supported messages, and platform support remain open decisions.
+Before adoption, test real gateway interoperability, invalid and stale readings, disconnect/reconnect behavior, offline operation, and phone background/lock behavior. The installed library version is pinned in Cargo.lock; gateway hardware, supported NMEA messages, and validated platform coverage remain open decisions.
 
 ## Installed dependencies and licenses
 

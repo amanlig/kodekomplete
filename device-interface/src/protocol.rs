@@ -1,3 +1,26 @@
+//! Transport-independent message codecs and the provisional reading adapter.
+
+pub mod nmea0183;
+pub mod nmea2000;
+
+pub use nmea0183::{Nmea0183Codec, Nmea0183Message};
+pub use nmea2000::Nmea2000Codec;
+
+/// Decode one complete protocol message. Transport framing/reassembly happens
+/// before this boundary; implementations retain protocol-specific message types.
+pub trait ProtocolDecoder<Input: ?Sized> {
+    type Message;
+
+    fn decode(&mut self, input: &Input) -> DeviceResult<Self::Message>;
+}
+
+/// Encode a protocol-specific message/request without sending it to equipment.
+pub trait ProtocolEncoder<Message: ?Sized> {
+    type Output;
+
+    fn encode(&mut self, message: &Message) -> DeviceResult<Self::Output>;
+}
+
 use crate::types::*;
 
 /// Implement for each supported instrument protocol once its format is known.

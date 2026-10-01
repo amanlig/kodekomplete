@@ -1,3 +1,5 @@
+mod monitor_cli;
+
 use ainavlog_device_interface::{BluetoothAdapter, DeviceError};
 use std::{env, process::ExitCode, time::Duration};
 
@@ -93,9 +95,29 @@ async fn run(options: Options) -> Result<(), DeviceError> {
 #[tokio::main]
 async fn main() -> ExitCode {
     let args: Vec<_> = env::args().skip(1).collect();
+    if args
+        .first()
+        .is_some_and(|s| s == "monitor-victron" || s == "observations")
+    {
+        let result = if args[0] == "monitor-victron" {
+            match monitor_cli::parse_monitor(&args[1..]) {
+                Ok(options) => monitor_cli::run_monitor(options).await,
+                Err(error) => Err(error),
+            }
+        } else {
+            monitor_cli::show_history(&args[1..])
+        };
+        return match result {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(error) => {
+                eprintln!("{error}\n{}", monitor_cli::USAGE);
+                ExitCode::FAILURE
+            }
+        };
+    }
     match parse(&args) {
         Ok(None) => {
-            println!("{USAGE}");
+            println!("{USAGE}\n       {}", monitor_cli::USAGE);
             ExitCode::SUCCESS
         }
         Err(error) => {

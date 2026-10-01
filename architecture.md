@@ -76,7 +76,7 @@ Reliable data capture, usability aboard a boat, handling interrupted connectivit
 
 R-11 requires external identity-provider communication for sign-in. Authentication exchanges do not upload boat logs, routes, or media; any hosted identity/session metadata and authentication service deployment remain proposed decisions in Section 4.7.
 
-The iPhone is an example data source, not a confirmed exclusive platform. Local storage behavior and handling of interrupted device connections remain TBD.
+The iPhone is an example data source, not a confirmed exclusive platform. The foreground Victron monitor implements local SQLite storage and scan recovery. App-wide storage and mobile connection/background behavior remain TBD.
 
 ## 3. Context and Scope
 
@@ -124,19 +124,21 @@ Windows and macOS remain longer-term availability targets. Desktop CLI builds su
 
 Users own their data, which is stored locally on the device running the application.  
 
-Local storage technology, access protection, and retention behavior remain TBD. Route sharing exports only the content the boater selects and previews; the original route remains local. Published content is subject to the selected social platform's storage and audience controls.
+The foreground Device Interface monitor currently stores Victron observations and reception events in local SQLite using rusqlite. This interim store is unencrypted and has no automatic retention. App-wide storage for logs/media, mobile access protection, and retention policy remain TBD; see the [monitoring guide](docs/victron-live-monitoring.md). Route sharing exports only the content the boater selects and previews; the original route remains local. Published content is subject to the selected social platform's storage and audience controls.
 
 ### 4.3 Communication
 
-Bluetooth or WiFi should be the primary mechanism for the application to communicate with external devices. A dedicated Device Interface will handle communication with devices such as Heart Interface and pass observations to data capture. Specific device models and any required adapters or gateways remain TBD; Bluetooth or WiFi support is not assumed for every device.
+**Beta scope:** Bluetooth is the only planned transport for communication with external instruments. Wi-Fi support is shelved for post-beta consideration; see the [backlog](docs/backlog.md#wi-fi-instrument-connectivity). A dedicated Device Interface will handle communication with devices such as Heart Interface and pass observations to data capture. Specific device models and any required adapters or gateways remain TBD; Bluetooth support is not assumed for every device.
 
 **Confirmed (R-05):** Utilize NMEA 0183 and NMEA 2000 as communication standards for integration with other onboard NMEA-compliant devices through the Device Interface.
 
-**Proposed:** Provide separate protocol adapters for NMEA 0183 and NMEA 2000, using compatible adapters or gateways to connect them to the application over Bluetooth or WiFi where supported. Normalize received instrument observations for data capture and local storage. The initial integration remains read-only and does not introduce boat-equipment control commands. Supported messages, device compatibility, gateway selection, and platform support remain TBD; NMEA support is not assumed for any particular Heart Interface model.
+**Proposed:** Provide separate protocol adapters for NMEA 0183 and NMEA 2000, using compatible adapters or gateways to connect them to the application over Bluetooth where supported in beta. Normalize received instrument observations for data capture and local storage. The initial integration remains read-only and does not introduce boat-equipment control commands. Supported messages, device compatibility, gateway selection, and platform support remain TBD; NMEA support is not assumed for any particular Heart Interface model.
 
-**Research:** See [Rust Bluetooth libraries](docs/rust-bluetooth-libraries.md) for candidate libraries, platform support, and a proposed evaluation approach. Library and gateway selection remain open.
+**Research:** See [Rust Bluetooth libraries](docs/rust-bluetooth-libraries.md) for candidate libraries, platform support, and a proposed evaluation approach. btleplug 0.13.3 is installed for BLE discovery, connection and manufacturer-advertisement reception. Gateway selection and physical/mobile validation remain open.
 
-Device communication security will be determined by the selected device protocols and adapters.
+**Implemented evaluation path:** Separate NMEA codecs use nmea-kit for NMEA 0183 and CANboat for NMEA 2000; framing, gateway reception and NMEA observation mapping remain pending. The Victron vendor decoder supports Orion DC/DC and XS Instant Readout advertisements. Its foreground monitor handles retries, stale status, duplicate suppression, private key-file reload, normalization and atomic SQLite persistence. See the [class diagram](docs/device-interface-class-diagram.md), [NMEA guide](docs/rust-nmea-libraries.md), and [live monitoring guide](docs/victron-live-monitoring.md). Physical Orion validation, the React Native bridge, mobile permissions, secure key storage and background execution remain pending.
+
+Victron advertisements use unauthenticated AES-CTR. The monitor requires a 32-character hexadecimal advertisement key, separate from the Bluetooth pairing PIN. Other device communication security depends on the selected protocols and adapters.
 
 ### 4.4 User inputs
 
@@ -333,7 +335,7 @@ flowchart LR
     UI["User interface"]
     subgraph Interface["Device Interface"]
         Connections["Connection manager"]
-        Transport["Bluetooth / WiFi adapters"]
+        Transport["Bluetooth adapter (beta)"]
         Protocol["Device protocol adapters"]
         Normalizer["Observation normalizer"]
         Connections -->|"Connect / disconnect"| Transport
@@ -349,7 +351,7 @@ flowchart LR
 | Module | Responsibility | Interfaces |
 | --- | --- | --- |
 | Connection manager | Track selected device, availability, connection lifecycle, and reconnection policy. | UI commands/status; transport lifecycle. |
-| Transport adapters | Encapsulate supported Bluetooth or WiFi access and platform permissions. | Received frames and transport errors to protocol adapters. |
+| Transport adapters | Encapsulate supported Bluetooth access and platform permissions for beta. | Received frames and transport errors to protocol adapters. |
 | Device protocol adapters | Decode supported NMEA 0183 and NMEA 2000 messages and identify source readings. | Raw frames in; typed readings or decoding errors out. |
 | Observation normalizer | Produce a common measurement envelope with source, observation/receipt time, quantity, unit, value, and quality status. | Validated envelope to Data capture. |
 

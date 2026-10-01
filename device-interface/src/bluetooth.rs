@@ -118,9 +118,6 @@ impl BluetoothAdapter {
     /// Connect only to an explicitly selected device returned by discovery.
     /// No characteristics are written or subscribed to.
     pub async fn connect(&mut self, device: &DeviceDescriptor) -> DeviceResult<()> {
-        if device.transport != TransportKind::Bluetooth {
-            return Err(DeviceError::UnsupportedProtocol);
-        }
         if self.connected.is_some() {
             return Err(transport(
                 "Disconnect the current device before connecting again",
@@ -157,5 +154,76 @@ impl BluetoothAdapter {
             self.connected = None;
         }
         Ok(())
+    }
+}
+
+/// An active scan with an event subscription established before scanning starts.
+/// Explicitly call stop; Drop attempts cleanup if a Tokio runtime is available.
+pub struct AdvertisementScan {
+    adapter: Adapter,
+    events: std::pin::Pin<Box<dyn futures_util::Stream<Item = btleplug::api::CentralEvent> + Send>>,
+    stopped: bool,
+}
+
+impl BluetoothAdapter {
+    pub async fn start_advertisements(&mut self) -> DeviceResult<AdvertisementScan> {
+        if self.adapter.is_none() {
+            self.adapter = Self::new(0).await?.adapter;
+        }
+        let adapter = self.adapter.as_ref().unwrap().clone();
+        let events = timeout(OPERATION_TIMEOUT, adapter.events())
+            .await
+            .map_err(|_| transport("BLE event subscription timed out"))?
+            .map_err(transport)?;
+        // Construct the cleanup guard before start_scan so cancellation/failure
+        // also attempts to stop a partially started OS scan.
+        let mut scan = AdvertisementScan {
+            adapter,
+            events,
+            stopped: false,
+        };
+        let started = timeout(
+            OPERATION_TIMEOUT,
+            scan.adapter.start_scan(ScanFilter::default()),
+        )
+        .await;
+        match started {
+            Ok(Ok(())) => Ok(scan),
+            result => {
+                let _ = scan.stop().await;
+                match result {
+                    Ok(Err(error)) => Err(transport(error)),
+                    _ => Err(transport("BLE scan startup timed out")),
+                }
+            }
+        }
+    }
+}
+impl AdvertisementScan {
+    pub async fn next_event(&mut self) -> DeviceResult<btleplug::api::CentralEvent> {
+        use futures_util::StreamExt;
+        self.events.next().await.ok_or(DeviceError::Disconnected)
+    }
+    pub async fn stop(&mut self) -> DeviceResult<()> {
+        if !self.stopped {
+            timeout(OPERATION_TIMEOUT, self.adapter.stop_scan())
+                .await
+                .map_err(|_| transport("BLE scan shutdown timed out"))?
+                .map_err(transport)?;
+            self.stopped = true;
+        }
+        Ok(())
+    }
+}
+impl Drop for AdvertisementScan {
+    fn drop(&mut self) {
+        if !self.stopped {
+            if let Ok(runtime) = tokio::runtime::Handle::try_current() {
+                let adapter = self.adapter.clone();
+                runtime.spawn(async move {
+                    let _ = timeout(OPERATION_TIMEOUT, adapter.stop_scan()).await;
+                });
+            }
+        }
     }
 }

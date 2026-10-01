@@ -23,9 +23,3 @@ pub trait TransportAdapter {
 }
 
 pub use crate::bluetooth::BluetoothAdapter;
-
-/// Placeholder; socket type, discovery, and gateway details remain TBD.
-#[derive(Default)]
-pub struct WifiAdapter;
-
-impl TransportAdapter for WifiAdapter {}

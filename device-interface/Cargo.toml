@@ -2,14 +2,25 @@
 name = "ainavlog-device-interface"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.96"
 publish = false
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
+futures-util = "0.3.34"
+rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
+aes = { version = "0.9.3", features = ["zeroize"] }
+ctr = { version = "0.10.1", features = ["zeroize"] }
+zeroize = "1.9.0"
+nmea-kit = "0.8.9"
+canboat = { version = "8.3.0", default-features = false, features = ["decode"] }
 btleplug = "0.13.3"
 tokio = { version = "1.53.1", features = ["rt-multi-thread", "macros", "time", "signal"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 dbus = { version = "0.9.12", features = ["vendored"] }
+
+[dev-dependencies]
+tokio = { version = "1.53.1", features = ["test-util"] }
