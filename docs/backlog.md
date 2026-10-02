@@ -38,3 +38,16 @@ and buffering before adding a concrete adapter to the shared transport interface
 
 **Expected outcome:** A separately scoped post-beta proposal backed by gateway
 requirements and platform validation. No beta Wi-Fi implementation is planned.
+
+## Orion key setup and physical validation
+
+- **Status:** Shelved at the user's request on 2026-10-02; the Orion is not nearby.
+- **Revisit when:** The user has the powered Orion within Bluetooth range.
+
+Defer obtaining the advertisement key, creating `orion.key`, and running physical
+reception/accuracy/recovery checks. Do not request the key again until this work is
+resumed. Preserve device ID `D4:B3:CB:26:5E:75` and the implemented decoder,
+foreground monitor and SQLite store. Software tests pass; physical validation is
+still pending. No substitute key or pairing PIN should be used for validation.
+
+See the [October 2 handoff](status-2026-10-02.md) for the current continuation point.

@@ -650,3 +650,9 @@ classDiagram
 | `MonitorReport` | [MonitorReport](../device-interface/src/monitor.rs#L57) |
 | `MonitorState` | [MonitorState](../device-interface/src/monitor.rs#L48) |
 | `StoredObservation` | [StoredObservation](../device-interface/src/store.rs#L23) |
+
+## In-process Orion simulation
+
+The separate [simulation crate and component diagram](../simulation/orion/README.md)
+generate encrypted synthetic advertisements for the production monitor and store.
+This bypasses the Bluetooth adapter; physical validation remains pending.

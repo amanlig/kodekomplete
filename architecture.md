@@ -128,6 +128,8 @@ The foreground Device Interface monitor currently stores Victron observations an
 
 ### 4.3 Communication
 
+See the [Orion physical architecture](docs/orion-physical-architecture.md) for the starter/house battery power path and the separate Bluetooth path to aiNavLog.
+
 **Beta scope:** Bluetooth is the only planned transport for communication with external instruments. Wi-Fi support is shelved for post-beta consideration; see the [backlog](docs/backlog.md#wi-fi-instrument-connectivity). A dedicated Device Interface will handle communication with devices such as Heart Interface and pass observations to data capture. Specific device models and any required adapters or gateways remain TBD; Bluetooth support is not assumed for every device.
 
 **Confirmed (R-05):** Utilize NMEA 0183 and NMEA 2000 as communication standards for integration with other onboard NMEA-compliant devices through the Device Interface.

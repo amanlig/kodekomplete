@@ -5,6 +5,10 @@ XS Instant Readout advertisements. It uses Bluetooth scanning, the vendor decode
 observation normalization and SQLite. It does not connect to the charger or send
 control commands. NMEA streaming remains a separate integration.
 
+> **2026-10-02:** Orion key setup and physical validation are shelved at the
+> user's request until the device is nearby. The instructions below are retained
+> for resuming later; see the [current handoff](status-2026-10-02.md).
+
 ## Run against the recorded device
 
 The device ID recorded in this project is **`D4:B3:CB:26:5E:75`**. IDs are local to
@@ -174,3 +178,9 @@ provides the Rust foreground service and local store for that later app integrat
 - [CLI](../device-interface/src/monitor_cli.rs)
 - [Integration tests](../device-interface/tests/live_monitor.rs)
 - [Vendor protocol guide](../device-interface/vendor/README.md)
+
+## Development without Orion hardware
+
+Use the [Orion simulator](../simulation/orion/README.md) to exercise decoding,
+freshness and SQLite storage with synthetic advertisements. No private key is
+needed. It uses a separate, newly created database and does not test Bluetooth.
