@@ -25,6 +25,43 @@ cargo run --manifest-path device-interface/Cargo.toml --locked -- observations /
 
 ## Pipeline and scenario
 
+### Windows-to-iPhone radio discovery test
+
+`broadcast-windows.ps1` is a separate native Windows PowerShell 5.1 broadcaster.
+It emits synthetic TR packets using the same public key and synthetic product ID,
+with increasing counters, varying input voltage and constant 14.4 V output. It
+does not run the Rust monitor, write SQLite, expose GATT services or implement the
+fault scenario. The existing Rust CLI remains an in-process simulator.
+
+From Windows PowerShell, in this directory (including via the WSL network path):
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\broadcast-windows.ps1 -CheckFixture
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\broadcast-windows.ps1 -DurationSeconds 300
+```
+
+Keep Bluetooth enabled in Windows and the adapter owned by Windows. The script
+requires an adapter/driver supporting BLE advertisements. It checks publisher
+startup and stops on failure; Ctrl-C or duration expiry stops broadcasting.
+Packets are replaced once per second with a stop/start cycle, so gaps are expected.
+
+On the iPhone, keep a BLE scanner such as nRF Connect or LightBlue in the foreground
+and allow Bluetooth access. Scan all devices, including unnamed/nonconnectable
+entries. Look for manufacturer ID `0x02E1` (Victron) and manufacturer payload
+beginning `10 02 34 12 04`; scanners showing the company ID inline will prefix
+`E1 02`. The following two bytes are the changing counter. Do not rely on a device
+name, the real Orion MAC address, or the iPhone Bluetooth pairing screen.
+
+Pass criteria: Windows reports `Started`, the iPhone receives the matching
+manufacturer data, and repeated observations show changing counters. Stopping the
+publisher should stop fresh receptions (the scanner may retain a cached entry).
+Publisher startup alone does not prove iPhone reception or telemetry decoding.
+
+Windows validation on 2026-10-05: the encoder matched the independent TR fixture
+and the Intel adapter reported publisher `Started`. iPhone reception awaits user
+confirmation. See [Microsoft's advertisement API](https://learn.microsoft.com/en-us/windows/apps/develop/devices-sensors/ble-beacon)
+and [Apple's advertisement data API](https://developer.apple.com/documentation/corebluetooth/advertising-data).
+
 The simulator serializes readings in protocol wire units and encrypts the payload
 with AES-128 CTR. It passes the advertisement to the production `VictronMonitor`,
 which decrypts, normalizes and persists through `ObservationStore`. It calls the

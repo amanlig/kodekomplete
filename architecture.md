@@ -128,9 +128,9 @@ The foreground Device Interface monitor currently stores Victron observations an
 
 ### 4.3 Communication
 
-See the [Orion physical architecture](docs/orion-physical-architecture.md) for the starter/house battery power path and the separate Bluetooth path to aiNavLog.
+See the [BMV-712 and Orion physical architecture](docs/orion-physical-architecture.md) for the starter/house battery power path and the separate Bluetooth path to aiNavLog.
 
-**Beta scope:** Bluetooth is the only planned transport for communication with external instruments. Wi-Fi support is shelved for post-beta consideration; see the [backlog](docs/backlog.md#wi-fi-instrument-connectivity). A dedicated Device Interface will handle communication with devices such as Heart Interface and pass observations to data capture. Specific device models and any required adapters or gateways remain TBD; Bluetooth support is not assumed for every device.
+**Beta scope:** Bluetooth is the only planned transport for communication with external instruments. Wi-Fi support is shelved for post-beta consideration; see the [backlog](docs/backlog.md#wi-fi-instrument-connectivity). A dedicated Device Interface will handle communication with devices such as Heart Interface and pass observations to data capture. The Victron BMV-712 Smart with its shunt is selected for the 2027 beta release as the source of house-battery voltage, net current and state-of-charge telemetry via Bluetooth Instant Readout. One monitor permanently measures the house bank through its shunt; the auxiliary input measures starter-battery voltage. A House / Starter UI selector shows house voltage/current/SOC and starter voltage/trend/low-voltage alerts. Starter current and SOC are unavailable; no electrical switching or starter SOC estimation is included in the confirmed baseline. BMV production decoding, normalization and local SQLite persistence are implemented and software-tested; mobile integration and physical validation remain pending. Link 2000 is not the selected beta battery telemetry source. Other device models and any required adapters or gateways remain TBD; Bluetooth support is not assumed for every device.
 
 **Confirmed (R-05):** Utilize NMEA 0183 and NMEA 2000 as communication standards for integration with other onboard NMEA-compliant devices through the Device Interface.
 
@@ -138,7 +138,7 @@ See the [Orion physical architecture](docs/orion-physical-architecture.md) for t
 
 **Research:** See [Rust Bluetooth libraries](docs/rust-bluetooth-libraries.md) for candidate libraries, platform support, and a proposed evaluation approach. btleplug 0.13.3 is installed for BLE discovery, connection and manufacturer-advertisement reception. Gateway selection and physical/mobile validation remain open.
 
-**Implemented evaluation path:** Separate NMEA codecs use nmea-kit for NMEA 0183 and CANboat for NMEA 2000; framing, gateway reception and NMEA observation mapping remain pending. The Victron vendor decoder supports Orion DC/DC and XS Instant Readout advertisements. Its foreground monitor handles retries, stale status, duplicate suppression, private key-file reload, normalization and atomic SQLite persistence. See the [class diagram](docs/device-interface-class-diagram.md), [NMEA guide](docs/rust-nmea-libraries.md), and [live monitoring guide](docs/victron-live-monitoring.md). Physical Orion validation, the React Native bridge, mobile permissions, secure key storage and background execution remain pending.
+**Implemented evaluation path:** Separate NMEA codecs use nmea-kit for NMEA 0183 and CANboat for NMEA 2000; framing, gateway reception and NMEA observation mapping remain pending. The Victron vendor decoder supports BMV battery-monitor, Orion DC/DC and XS Instant Readout advertisements. Its foreground monitor handles retries, stale status, duplicate suppression, private key-file reload, normalization and atomic SQLite persistence. See the [class diagram](docs/device-interface-class-diagram.md), [NMEA guide](docs/rust-nmea-libraries.md), and [live monitoring guide](docs/victron-live-monitoring.md). Physical Orion validation, the React Native bridge, mobile permissions, secure key storage and background execution remain pending.
 
 Victron advertisements use unauthenticated AES-CTR. The monitor requires a 32-character hexadecimal advertisement key, separate from the Bluetooth pairing PIN. Other device communication security depends on the selected protocols and adapters.
 
@@ -515,3 +515,7 @@ Before implementation, prioritize the route source/model, local ownership and gu
 - Session expiry or revoked credentials require reauthentication for protected operations; offline access follows the explicit policy from Section 4.7 and is not represented as fresh provider authentication.
 - Sign-out clears credentials; account switching cannot expose another account's local records. The local data ownership policy must be defined and tested before release.
 - Sign-in alone neither uploads routes/media nor publishes stories. Secrets and tokens are absent from distributed source, ordinary local storage, and diagnostic logs.
+
+### Implementation schedule
+
+See the [vertical implementation plan](docs/project-plan.md): Electrical, Engine, Route, Authentication/authorization, then Route story; two weeks per slice starting October 5, 2026. This establishes the implementation foundation for the 2027 beta; release qualification is scheduled separately.

@@ -225,6 +225,25 @@ impl VictronMonitor {
 pub fn normalize_victron(message: &VictronMessage) -> DeviceResult<Vec<Observation>> {
     let mut fields: Vec<(&str, &str, Option<f64>)> = Vec::new();
     match &message.record {
+        OrionRecord::BatteryMonitor(d) => {
+            fields.extend([
+                ("battery_voltage", "V", d.battery_voltage_v),
+                ("battery_current", "A", d.battery_current_a),
+                ("state_of_charge", "%", d.state_of_charge_percent),
+                ("consumed_charge", "Ah", d.consumed_ah),
+                ("time_to_go", "min", d.time_to_go_minutes.map(f64::from)),
+                ("alarm_reason", "bitmask", Some(f64::from(d.alarm_reason))),
+            ]);
+            use crate::vendor::victron::BatteryAuxiliary;
+            match &d.auxiliary {
+                BatteryAuxiliary::Voltage(v) => fields.push(("auxiliary_voltage", "V", *v)),
+                BatteryAuxiliary::MidpointVoltage(v) => fields.push(("midpoint_voltage", "V", *v)),
+                BatteryAuxiliary::TemperatureKelvin(v) => {
+                    fields.push(("battery_temperature", "K", *v))
+                }
+                BatteryAuxiliary::Disabled => {}
+            }
+        }
         OrionRecord::DcDc(d) => fields.extend([
             ("input_voltage", "V", d.input_voltage_v),
             ("output_voltage", "V", d.output_voltage_v),

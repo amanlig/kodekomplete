@@ -137,3 +137,24 @@ Protocol sources:
 
 The implementation is original code based on the protocol descriptions. It does
 not copy the reference project's source or bundle Victron's specification PDF.
+
+## BMV-712 / Battery Monitor record 0x02
+
+The decoder also accepts the published battery-monitor record. It exposes battery
+voltage, signed 22-bit current (A), consumed charge (negative Ah), SOC (%),
+time-to-go (minutes), alarm bits and a typed auxiliary value (second voltage,
+midpoint voltage, temperature in kelvin, or disabled). NA sentinels become None;
+SOC outside 0..100% becomes unavailable. At least 15 encrypted bytes are needed;
+trailing reserved bytes/extensions are accepted. `VictronRecord` aliases the
+existing `OrionRecord` type for compatibility.
+
+The monitor normalizes these to battery_voltage, battery_current, state_of_charge,
+consumed_charge, time_to_go, alarm_reason and the selected auxiliary quantity.
+SQLite records battery-monitor samples as record_type 2. Auxiliary voltage is
+mapped to the starter battery by installation configuration; the decoder does not
+invent starter current or SOC. The beta auxiliary setting is second-battery voltage.
+
+Regression coverage includes the user-transcribed iPhone packet, independent
+OpenSSL charge/discharge fixtures, unavailable values, starter auxiliary voltage,
+truncation/extension handling and monitor persistence/duplicate suppression.
+The tests use synthetic keys and packets, not real hardware captures.

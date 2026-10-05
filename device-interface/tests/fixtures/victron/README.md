@@ -27,3 +27,11 @@ is not required to run the test suite.
 The normal DC/DC fixture has state 3, error 0, 13.2 V input, 14.4 V output
 and off-reason bits `0x80000081`. The XS fixture adds -12.3 A output current
 and 15 A input current. NA fixtures exercise published unavailable sentinels.
+
+BMV fixtures use header `10 02 34 12 02 34 12 00` and the same public key/IV.
+`bmv_na.bin` plaintext: `ffffff7f0000ffffffffffffffffffff` (measurements NA,
+auxiliary disabled). `bmv_starter.bin` is packed little-endian: TTG 120, battery
+1276 centivolts, alarm 0, auxiliary 1280 centivolts, auxiliary selector 0,
+signed22 current -5250 mA, consumed 450 deci-Ah, SOC 775 deci-percent, reserved
+bits set. Both were encrypted independently with OpenSSL. Charge/discharge
+fixtures live under simulation/bmv712 and are documented there.

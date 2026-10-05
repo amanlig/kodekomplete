@@ -1,4 +1,4 @@
-//! Victron Instant Readout decoding for Orion-Tr Smart and Orion XS.
+//! Victron Instant Readout decoding for BMV battery monitors and Orion chargers.
 //!
 //! Input is the manufacturer-data value under company ID 0x02e1, WITHOUT the
 //! company-ID bytes or BLE AD length/type bytes. One decoder/key per source.
@@ -37,10 +37,34 @@ pub struct VictronMessage {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum OrionRecord {
+    /// Published record 0x02 (BMV-712 / compatible battery monitors).
+    BatteryMonitor(BatteryMonitorReadings),
     /// Published record 0x04 (DC/DC converter, including Orion-Tr Smart).
     DcDc(DcDcReadings),
     /// Published record 0x0f (Orion XS).
     OrionXs(OrionXsReadings),
+}
+
+/// General name for the shared record enum; OrionRecord remains compatible.
+pub type VictronRecord = OrionRecord;
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum BatteryAuxiliary {
+    Voltage(Option<f64>),
+    MidpointVoltage(Option<f64>),
+    TemperatureKelvin(Option<f64>),
+    Disabled,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BatteryMonitorReadings {
+    pub time_to_go_minutes: Option<u16>,
+    pub battery_voltage_v: Option<f64>,
+    pub battery_current_a: Option<f64>,
+    pub consumed_ah: Option<f64>,
+    pub state_of_charge_percent: Option<f64>,
+    pub alarm_reason: u16,
+    pub auxiliary: BatteryAuxiliary,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -154,6 +178,7 @@ impl VictronAdvertisementDecoder {
             return Err(VictronError::UnsupportedAdvertisement(data[0]));
         }
         let required = match data[4] {
+            0x02 => 15, // SOC ends at plaintext bit 118; reserved bits may follow
             0x04 => 10,
             0x0f => 14,
             kind => return Err(VictronError::UnsupportedRecord(kind)),
@@ -176,7 +201,33 @@ impl VictronAdvertisementDecoder {
             .map_err(|_| VictronError::CipherFailure)?;
         // Minimum sizes were checked before decrypting; trailing extensions are
         // allowed by the specification and ignored until their layout is known.
-        let record = if data[4] == 0x04 {
+        let record = if data[4] == 0x02 {
+            let current = bits(&plain, 66, 22);
+            let signed_current = ((current << 10) as i32) >> 10;
+            let consumed = bits(&plain, 88, 20);
+            let soc = bits(&plain, 108, 10);
+            let aux = u16_at(&plain, 6);
+            let auxiliary = match bits(&plain, 64, 2) {
+                0 => BatteryAuxiliary::Voltage(signed_measurement(&plain, 6, 0.01)),
+                1 => BatteryAuxiliary::MidpointVoltage(
+                    (aux != 0xffff).then_some(f64::from(aux) * 0.01),
+                ),
+                2 => BatteryAuxiliary::TemperatureKelvin(
+                    (aux != 0xffff).then_some(f64::from(aux) * 0.01),
+                ),
+                _ => BatteryAuxiliary::Disabled,
+            };
+            OrionRecord::BatteryMonitor(BatteryMonitorReadings {
+                time_to_go_minutes: (u16_at(&plain, 0) != 0xffff).then_some(u16_at(&plain, 0)),
+                battery_voltage_v: signed_measurement(&plain, 2, 0.01),
+                battery_current_a: (current != 0x3fffff)
+                    .then_some(f64::from(signed_current) * 0.001),
+                consumed_ah: (consumed != 0xfffff).then_some(-f64::from(consumed) * 0.1),
+                state_of_charge_percent: (soc <= 1000).then_some(f64::from(soc) * 0.1),
+                alarm_reason: u16_at(&plain, 4),
+                auxiliary,
+            })
+        } else if data[4] == 0x04 {
             OrionRecord::DcDc(DcDcReadings {
                 device_state: (plain[0] != 0xff).then_some(plain[0]),
                 charger_error: (plain[1] != 0xff).then_some(plain[1]),
@@ -257,4 +308,11 @@ fn unsigned_measurement(data: &[u8], offset: usize, scale: f64) -> Option<f64> {
 fn signed_measurement(data: &[u8], offset: usize, scale: f64) -> Option<f64> {
     let raw = u16_at(data, offset);
     (raw != 0x7fff).then_some(f64::from(raw as i16) * scale)
+}
+
+// Little-endian bit fields can cross byte boundaries (BMV current, Ah and SOC).
+fn bits(data: &[u8], offset: usize, width: usize) -> u32 {
+    (0..width).fold(0, |value, bit| {
+        value | (u32::from((data[(offset + bit) / 8] >> ((offset + bit) % 8)) & 1) << bit)
+    })
 }

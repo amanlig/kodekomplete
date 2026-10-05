@@ -50,6 +50,33 @@ fn published_dcdc_layout_decrypts_through_shared_interface() {
 }
 
 #[test]
+fn iphone_reported_windows_simulator_packet_decrypts() {
+    // User transcription from nRF Connect, 2026-10-05:
+    // 02E1 1002 3412 0493 0000 A54A A468 4B55 B425 8E1B
+    // 02E1 is the displayed company ID, not part of the encrypted payload.
+    // Keep B425 exactly as supplied, rather than replacing it with B42B.
+    let payload = [
+        0x10, 0x02, 0x34, 0x12, 0x04, 0x93, 0x00, 0x00, 0xa5, 0x4a, 0xa4, 0x68, 0x4b, 0x55, 0xb4,
+        0x25, 0x8e, 0x1b,
+    ];
+    let input = advertisement(&payload);
+    let message = decoder().decode(&input).unwrap();
+    assert_eq!(message.source_id, input.source_id);
+    assert_eq!(message.received_at, input.received_at);
+    assert_eq!(message.product_id, 0x1234);
+    assert_eq!(message.data_counter, 147);
+    let OrionRecord::DcDc(data) = message.record else {
+        panic!("expected Orion TR record")
+    };
+    assert_eq!(data.device_state, Some(3)); // Bulk
+    assert_eq!(data.charger_error, Some(0));
+    close(data.input_voltage_v, 13.26);
+    close(data.output_voltage_v, 14.4);
+    // Independently decrypted with OpenSSL: 03 00 2e 05 a0 05 00 0e 00 00.
+    assert_eq!(data.off_reason, 0x00000e00);
+}
+
+#[test]
 fn xs_uses_its_own_field_order_signed_current_and_scaling() {
     let message = decoder().decode(&advertisement(XS)).unwrap();
     let OrionRecord::OrionXs(data) = message.record else {

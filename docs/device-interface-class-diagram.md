@@ -1,8 +1,10 @@
 # Device Interface UML class diagram
 
 This diagram describes the Rust code in `device-interface/src`, reviewed on
-2026-10-01. Rust structs are shown as classes and traits as interfaces. It reflects
-the current implementation rather than the proposed architecture.
+2026-10-05. Rust structs are shown as classes and traits as interfaces. It reflects
+the current implementation rather than the proposed architecture. The vendor
+view focuses on the selected BMV-712 beta battery monitor; charger-specific
+record types are omitted from this document.
 
 Beta instrument connectivity is Bluetooth-only. Wi-Fi has been removed from the
 active interfaces and diagrams and [shelved in the backlog](backlog.md#wi-fi-instrument-connectivity).
@@ -21,14 +23,14 @@ below provides ordinary Markdown links as a fallback.
 
 ## Implementation status
 
-Colors describe the code as of **2026-10-01**, within each component's stated
+Colors describe the code as of **2026-10-05**, within each component's stated
 scope. Green means **100% implemented for that scope**, not complete support for
 every protocol feature, platform or live device. Interfaces and data contracts
 can be complete as definitions while their consuming pipeline remains unfinished.
 
 | Color | Status | Components and scope |
 | --- | --- | --- |
-| 🟩 Green | 100% implemented within stated scope | `Nmea0183Codec`, `Nmea0183Message`, `Nmea2000Codec`: complete-message encoding/decoding; `VictronAdvertisementDecoder`: Orion DC/DC and XS advertisement decoding; `ProtocolDecoder`, `ProtocolEncoder`: implemented interface definitions; `CLI`: discovery, connection, foreground monitoring and history commands; `VictronMonitor`, `ObservationNormalizer`, `ObservationStore`: tested processing, validation and SQLite persistence; data structs/enums: existing field and variant definitions. |
+| 🟩 Green | 100% implemented within stated scope | `Nmea0183Codec`, `Nmea0183Message`, `Nmea2000Codec`: complete-message encoding/decoding; `VictronAdvertisementDecoder`: BMV-712 battery-monitor advertisement decoding; `ProtocolDecoder`, `ProtocolEncoder`: implemented interface definitions; `CLI`: discovery, connection, foreground monitoring and history commands; `VictronMonitor`, `ObservationNormalizer`, `ObservationStore`: tested processing, validation and SQLite persistence; data structs/enums: existing field and variant definitions. |
 | 🟨 Amber | In progress | `BluetoothAdapter`, `AdvertisementScan`, `BluetoothAdvertisementSource`: scanning and reception implemented, pending hardware/mobile validation; GATT notifications and unified transport integration remain unfinished. |
 | 🟥 Red | Not implemented | `TransportAdapter`, `ConnectionManager`, `DeviceProtocolAdapter`: operational methods remain `NotImplemented` stubs. Constructors and type declarations do not count as operational implementation. |
 | ⬜ Gray | External dependency | btleplug handles, nmea-kit, CANboat and their types. These are outside the project's implementation-status assessment. |
@@ -348,13 +350,13 @@ These links mirror every clickable diagram node.
 | `TransportKind` | [TransportKind](../device-interface/src/types.rs#L31) |
 | `canboat` | [canboat](https://docs.rs/crate/canboat/8.3.0/source/src/lib.rs) |
 | `nmea_kit` | [nmea_kit](https://docs.rs/crate/nmea-kit/0.8.9/source/src/lib.rs) |
-| `VictronAdvertisementDecoder` | [VictronAdvertisementDecoder](../device-interface/vendor/victron/mod.rs#L111) |
+| `VictronAdvertisementDecoder` | [VictronAdvertisementDecoder](../device-interface/vendor/victron/mod.rs#L135) |
 | `VictronAdvertisement` | [VictronAdvertisement](../device-interface/vendor/victron/mod.rs#L20) |
 | `VictronMessage` | [VictronMessage](../device-interface/vendor/victron/mod.rs#L30) |
-| `OrionRecord` | [OrionRecord](../device-interface/vendor/victron/mod.rs#L39) |
-| `DcDcReadings` | [DcDcReadings](../device-interface/vendor/victron/mod.rs#L47) |
-| `OrionXsReadings` | [OrionXsReadings](../device-interface/vendor/victron/mod.rs#L58) |
-| `VictronError` | [VictronError](../device-interface/vendor/victron/mod.rs#L70) |
+| `VictronRecord` | [VictronRecord](../device-interface/vendor/victron/mod.rs#L49) |
+| `BatteryMonitorReadings` | [BatteryMonitorReadings](../device-interface/vendor/victron/mod.rs#L60) |
+| `BatteryAuxiliary` | [BatteryAuxiliary](../device-interface/vendor/victron/mod.rs#L52) |
+| `VictronError` | [VictronError](../device-interface/vendor/victron/mod.rs#L94) |
 
 - [Codec behavior tests](../device-interface/tests/nmea_codecs.rs)
 - [Build and usage instructions](../device-interface/README.md)
@@ -476,7 +478,7 @@ CAN reassembly/fragmentation and device I/O are outside both interfaces.
 The implementation is located directly under `device-interface/vendor/victron`.
 The decoder consumes manufacturer advertisements for one configured source, with
 its VictronConnect advertisement key. This is a separate protocol from NMEA.
-Green indicates completed decoding for records 0x04 and 0x0f. The foreground
+Green indicates completed decoding for battery-monitor record 0x02. The foreground
 monitor receives advertisements, reloads a private key file, normalizes readings
 and persists them to SQLite. Mobile secure storage and application integration
 remain pending. No live-device interoperability has been verified.
@@ -510,30 +512,28 @@ classDiagram
         +SystemTime received_at
         +u16 product_id
         +u16 data_counter
-        +OrionRecord record
+        +VictronRecord record
     }
-    class OrionRecord {
+    class VictronRecord {
+        <<type alias>>
+        BatteryMonitor
+    }
+    class BatteryMonitorReadings {
+        <<struct>>
+        +Option~u16~ time_to_go_minutes
+        +Option~f64~ battery_voltage_v
+        +Option~f64~ battery_current_a
+        +Option~f64~ consumed_ah
+        +Option~f64~ state_of_charge_percent
+        +u16 alarm_reason
+        +BatteryAuxiliary auxiliary
+    }
+    class BatteryAuxiliary {
         <<enumeration>>
-        DcDc
-        OrionXs
-    }
-    class DcDcReadings {
-        <<struct>>
-        +Option~u8~ device_state
-        +Option~u8~ charger_error
-        +Option~f64~ input_voltage_v
-        +Option~f64~ output_voltage_v
-        +u32 off_reason
-    }
-    class OrionXsReadings {
-        <<struct>>
-        +u8 device_state
-        +u8 charger_error
-        +Option~f64~ output_voltage_v
-        +Option~f64~ output_current_a
-        +Option~f64~ input_voltage_v
-        +Option~f64~ input_current_a
-        +u32 off_reason
+        Voltage Option~f64~
+        MidpointVoltage Option~f64~
+        TemperatureKelvin Option~f64~
+        Disabled
     }
     class VictronError {
         <<enumeration>>
@@ -551,30 +551,30 @@ classDiagram
     VictronAdvertisementDecoder ..> VictronAdvertisement : consumes
     VictronAdvertisementDecoder ..> VictronMessage : returns
     VictronAdvertisementDecoder ..> VictronError : reports
-    VictronMessage --> OrionRecord : record
-    OrionRecord --> DcDcReadings : record 0x04
-    OrionRecord --> OrionXsReadings : record 0x0f
+    VictronMessage --> VictronRecord : record
+    VictronRecord --> BatteryMonitorReadings : BatteryMonitor record 0x02
+    BatteryMonitorReadings --> BatteryAuxiliary : selected auxiliary mode
     note for VictronAdvertisementDecoder "Key mismatch clears the key. AES-CTR does not authenticate readings."
     style ProtocolDecoder fill:#dcfce7,stroke:#166534,color:#14532d,stroke-width:2px
     click ProtocolDecoder href "../device-interface/src/protocol.rs#L11" "Open ProtocolDecoder source"
     style VictronAdvertisementDecoder fill:#dcfce7,stroke:#166534,color:#14532d,stroke-width:2px
-    click VictronAdvertisementDecoder href "../device-interface/vendor/victron/mod.rs#L111" "Open VictronAdvertisementDecoder source"
+    click VictronAdvertisementDecoder href "../device-interface/vendor/victron/mod.rs#L135" "Open VictronAdvertisementDecoder source"
     style VictronAdvertisement fill:#dcfce7,stroke:#166534,color:#14532d,stroke-width:2px
     click VictronAdvertisement href "../device-interface/vendor/victron/mod.rs#L20" "Open VictronAdvertisement source"
     style VictronMessage fill:#dcfce7,stroke:#166534,color:#14532d,stroke-width:2px
     click VictronMessage href "../device-interface/vendor/victron/mod.rs#L30" "Open VictronMessage source"
-    style OrionRecord fill:#dcfce7,stroke:#166534,color:#14532d,stroke-width:2px
-    click OrionRecord href "../device-interface/vendor/victron/mod.rs#L39" "Open OrionRecord source"
-    style DcDcReadings fill:#dcfce7,stroke:#166534,color:#14532d,stroke-width:2px
-    click DcDcReadings href "../device-interface/vendor/victron/mod.rs#L47" "Open DcDcReadings source"
-    style OrionXsReadings fill:#dcfce7,stroke:#166534,color:#14532d,stroke-width:2px
-    click OrionXsReadings href "../device-interface/vendor/victron/mod.rs#L58" "Open OrionXsReadings source"
+    style VictronRecord fill:#dcfce7,stroke:#166534,color:#14532d,stroke-width:2px
+    click VictronRecord href "../device-interface/vendor/victron/mod.rs#L49" "Open record alias"
+    style BatteryMonitorReadings fill:#dcfce7,stroke:#166534,color:#14532d,stroke-width:2px
+    click BatteryMonitorReadings href "../device-interface/vendor/victron/mod.rs#L60" "Open battery readings"
+    style BatteryAuxiliary fill:#dcfce7,stroke:#166534,color:#14532d,stroke-width:2px
+    click BatteryAuxiliary href "../device-interface/vendor/victron/mod.rs#L52" "Open auxiliary enum"
     style VictronError fill:#dcfce7,stroke:#166534,color:#14532d,stroke-width:2px
-    click VictronError href "../device-interface/vendor/victron/mod.rs#L70" "Open VictronError source"
+    click VictronError href "../device-interface/vendor/victron/mod.rs#L94" "Open VictronError source"
 ```
 
 See the [vendor guide](../device-interface/vendor/README.md) and
-[fixture tests](../device-interface/tests/victron_decoder.rs) for supported layouts,
+[fixture tests](../device-interface/tests/bmv_decoder.rs) for supported layouts,
 key lifecycle, error handling and limits.
 
 ## Live monitoring and local storage
@@ -623,7 +623,7 @@ classDiagram
     style VictronMonitor fill:#dcfce7,stroke:#166534,color:#14532d,stroke-width:2px
     click VictronMonitor href "../device-interface/src/monitor.rs#L65" "Open VictronMonitor source"
     style VictronAdvertisementDecoder fill:#dcfce7,stroke:#166534,color:#14532d,stroke-width:2px
-    click VictronAdvertisementDecoder href "../device-interface/vendor/victron/mod.rs#L111" "Open VictronAdvertisementDecoder source"
+    click VictronAdvertisementDecoder href "../device-interface/vendor/victron/mod.rs#L135" "Open VictronAdvertisementDecoder source"
     style ObservationNormalizer fill:#dcfce7,stroke:#166534,color:#14532d,stroke-width:2px
     click ObservationNormalizer href "../device-interface/src/normalizer.rs#L5" "Open ObservationNormalizer source"
     style ObservationStore fill:#dcfce7,stroke:#166534,color:#14532d,stroke-width:2px
@@ -644,15 +644,37 @@ classDiagram
 | `BluetoothAdvertisementSource` | [BluetoothAdvertisementSource](../device-interface/src/monitor.rs#L271) |
 | `AdvertisementScan` | [AdvertisementScan](../device-interface/src/bluetooth.rs#L162) |
 | `VictronMonitor` | [VictronMonitor](../device-interface/src/monitor.rs#L65) |
-| `VictronAdvertisementDecoder` | [VictronAdvertisementDecoder](../device-interface/vendor/victron/mod.rs#L111) |
+| `VictronAdvertisementDecoder` | [VictronAdvertisementDecoder](../device-interface/vendor/victron/mod.rs#L135) |
 | `ObservationNormalizer` | [ObservationNormalizer](../device-interface/src/normalizer.rs#L5) |
 | `ObservationStore` | [ObservationStore](../device-interface/src/store.rs#L18) |
 | `MonitorReport` | [MonitorReport](../device-interface/src/monitor.rs#L57) |
 | `MonitorState` | [MonitorState](../device-interface/src/monitor.rs#L48) |
 | `StoredObservation` | [StoredObservation](../device-interface/src/store.rs#L23) |
 
-## In-process Orion simulation
+## BMV-712 beta battery data flow
 
-The separate [simulation crate and component diagram](../simulation/orion/README.md)
-generate encrypted synthetic advertisements for the production monitor and store.
-This bypasses the Bluetooth adapter; physical validation remains pending.
+The [Windows BMV simulator](../simulation/bmv712/README.md) broadcasts encrypted
+battery-monitor advertisements. Independent charge/discharge fixtures and a
+user-transcribed iPhone packet verify decoding; physical BMV validation and mobile
+UI integration remain pending. The simulator currently disables the auxiliary
+input; starter-voltage simulation is still pending.
+
+The beta uses one permanently connected house shunt and the monitor's auxiliary
+input configured for starter voltage. A planned House / Starter UI selector changes
+views, not electrical connections. No starter current or SOC is inferred.
+
+| Normalized quantity | Unit | Beta use |
+| --- | --- | --- |
+| battery_voltage | V | House voltage |
+| battery_current | A | House net current; positive charging, negative discharging |
+| state_of_charge | % | House charge percentage |
+| auxiliary_voltage | V | Starter voltage when auxiliary mode is Voltage |
+| consumed_charge | Ah | House consumed charge, negative value |
+| time_to_go | min | Monitor time remaining estimate |
+| alarm_reason | bitmask | Monitor alarms |
+
+Missing measurements retain Unknown quality and SQLite NULL values. The decoder
+also distinguishes midpoint voltage and temperature in kelvin from auxiliary
+voltage. Battery-monitor samples persist with record_type 2; duplicate suppression
+and key lifecycle use the existing monitor. `VictronRecord` is the public alias of
+the existing shared record enum; only its BatteryMonitor variant is shown here.

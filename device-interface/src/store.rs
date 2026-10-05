@@ -102,7 +102,8 @@ impl ObservationStore {
         let received = unix_millis(message.received_at)?;
         let record_type = match message.record {
             crate::vendor::victron::OrionRecord::DcDc(_) => 4,
-            _ => 15,
+            crate::vendor::victron::OrionRecord::OrionXs(_) => 15,
+            crate::vendor::victron::OrionRecord::BatteryMonitor(_) => 2,
         };
         let tx = self.connection.transaction().map_err(storage)?;
         tx.execute("INSERT INTO samples(source_id,received_at_ms,product_id,data_counter,record_type,manufacturer_data) VALUES (?1,?2,?3,?4,?5,?6)",
