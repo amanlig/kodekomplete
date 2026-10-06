@@ -1,0 +1,54 @@
+SIMULATED bmv712 : manufacturer ID 0x02E1, synthetic product 0x1234.
+Scan with an iPhone BLE scanner in the foreground. Device may be unnamed.
+Running for 25 seconds. Ctrl-C stops. Public synthetic key: 000102030405060708090a0b0c0d0e0f
+SIMULATED house: 12.76 V, -5.25 A, 77.5%; starter: 12.8 V (current/SOC unavailable)
+Advertising counter=1 status=Started payload=10-02-34-12-02-01-00-00-9B-7C-2F-67-DD-7C-87-A5-62-52-F1-FC-61-90-6C-7D
+SIMULATED house: 12.76 V, -5.25 A, 77.5%; starter: 12.8 V (current/SOC unavailable)
+Advertising counter=2 status=Started payload=10-02-34-12-02-02-00-00-83-8A-1F-1F-A5-DB-9C-A8-6F-9B-B2-45-23-A4-83-D9
+SIMULATED house: 12.76 V, -5.25 A, 77.5%; starter: 12.8 V (current/SOC unavailable)
+Advertising counter=3 status=Started payload=10-02-34-12-02-03-00-00-F4-B8-65-10-8F-1F-A8-FA-69-9F-2F-29-14-D9-C6-0D
+SIMULATED house: 12.76 V, -5.25 A, 77.5%; starter: 12.8 V (current/SOC unavailable)
+Advertising counter=4 status=Started payload=10-02-34-12-02-04-00-00-88-8C-71-00-93-12-EA-C2-97-22-5F-92-79-67-7A-5E
+SIMULATED house: 12.76 V, -5.25 A, 77.5%; starter: 12.8 V (current/SOC unavailable)
+Advertising counter=5 status=Started payload=10-02-34-12-02-05-00-00-00-9D-3B-68-CB-52-CE-19-C5-14-F1-09-34-0A-06-F1
+SIMULATED house: 12.76 V, -5.25 A, 77.4%; starter: 12.8 V (current/SOC unavailable)
+Advertising counter=6 status=Started payload=10-02-34-12-02-06-00-00-93-3E-14-55-46-11-07-FB-3A-DF-68-76-7B-B5-15-9C
+SIMULATED house: 12.76 V, -5.25 A, 77.4%; starter: 12.8 V (current/SOC unavailable)
+Advertising counter=7 status=Started payload=10-02-34-12-02-07-00-00-72-54-3F-E2-EA-E0-7E-C9-0C-FC-44-09-98-7A-C0-13
+SIMULATED house: 12.76 V, -5.25 A, 77.4%; starter: 12.8 V (current/SOC unavailable)
+Advertising counter=8 status=Started payload=10-02-34-12-02-08-00-00-BF-0F-3A-2F-C9-B0-45-91-4D-E2-56-46-25-85-BF-2B
+SIMULATED house: 12.76 V, -5.25 A, 77.4%; starter: 12.8 V (current/SOC unavailable)
+Advertising counter=9 status=Started payload=10-02-34-12-02-09-00-00-05-9A-3A-C1-3A-E5-58-A5-6B-93-D0-C7-B5-B2-52-7F
+SIMULATED house: 12.76 V, -5.25 A, 77.4%; starter: 12.8 V (current/SOC unavailable)
+Advertising counter=10 status=Started payload=10-02-34-12-02-0A-00-00-75-19-CF-02-27-42-FE-04-74-53-F9-25-A9-7A-50-FE
+SIMULATED house: 12.75 V, -5.25 A, 77.3%; starter: 12.8 V (current/SOC unavailable)
+Advertising counter=11 status=Started payload=10-02-34-12-02-0B-00-00-CE-E1-58-39-43-63-11-FC-47-2D-4C-77-FA-F7-06-EE
+SIMULATED house: 12.75 V, -5.25 A, 77.3%; starter: 12.8 V (current/SOC unavailable)
+Advertising counter=12 status=Started payload=10-02-34-12-02-0C-00-00-92-7F-93-07-F7-B9-CB-25-B7-DD-A3-C2-EE-4C-14-F1
+SIMULATED house: 12.75 V, -5.25 A, 77.3%; starter: 12.8 V (current/SOC unavailable)
+Advertising counter=13 status=Started payload=10-02-34-12-02-0D-00-00-6E-99-F9-B0-54-D4-83-A5-2F-B2-1C-C5-FE-7D-37-21
+SIMULATED house: 12.75 V, -5.25 A, 77.3%; starter: 12.8 V (current/SOC unavailable)
+Advertising counter=14 status=Started payload=10-02-34-12-02-0E-00-00-5C-B1-74-8C-14-DB-4E-D1-11-7B-A8-DA-01-F8-17-F4
+SIMULATED house: 12.75 V, -5.25 A, 77.3%; starter: 12.8 V (current/SOC unavailable)
+Advertising counter=15 status=Started payload=10-02-34-12-02-0F-00-00-33-EB-5D-02-25-5A-06-FA-BF-2F-7A-22-4A-91-69-2C
+SIMULATED house: 12.75 V, -5.25 A, 77.2%; starter: 12.79 V (current/SOC unavailable)
+Advertising counter=16 status=Started payload=10-02-34-12-02-10-00-00-51-9F-87-2D-A3-E1-C5-E3-0E-E3-34-68-63-BC-85-9F
+SIMULATED house: 12.75 V, -5.25 A, 77.2%; starter: 12.79 V (current/SOC unavailable)
+Advertising counter=17 status=Started payload=10-02-34-12-02-11-00-00-4C-6C-D6-6C-F8-58-73-36-64-85-70-F2-2E-9C-1E-F7
+SIMULATED house: 12.75 V, -5.25 A, 77.2%; starter: 12.79 V (current/SOC unavailable)
+Advertising counter=18 status=Started payload=10-02-34-12-02-12-00-00-3F-35-E7-B5-E4-85-F3-FF-16-E0-BB-5F-AE-BE-78-C1
+SIMULATED house: 12.75 V, -5.25 A, 77.2%; starter: 12.79 V (current/SOC unavailable)
+Advertising counter=19 status=Started payload=10-02-34-12-02-13-00-00-3A-F4-B0-FE-E4-1A-D1-7D-5E-D3-7A-F8-A4-89-73-FF
+SIMULATED house: 12.75 V, -5.25 A, 77.2%; starter: 12.79 V (current/SOC unavailable)
+Advertising counter=20 status=Started payload=10-02-34-12-02-14-00-00-49-46-7A-E7-81-19-E7-21-F0-F6-EF-F4-55-EF-48-0B
+SIMULATED house: 12.74 V, -5.25 A, 77.1%; starter: 12.79 V (current/SOC unavailable)
+Advertising counter=21 status=Started payload=10-02-34-12-02-15-00-00-73-B0-F1-7F-DC-AF-59-F6-D9-67-E4-DB-C6-A9-9F-5C
+SIMULATED house: 12.74 V, -5.25 A, 77.1%; starter: 12.79 V (current/SOC unavailable)
+Advertising counter=22 status=Started payload=10-02-34-12-02-16-00-00-0F-38-8F-37-88-00-B7-D8-E1-F6-46-70-64-32-44-A4
+SIMULATED house: 12.74 V, -5.25 A, 77.1%; starter: 12.79 V (current/SOC unavailable)
+Advertising counter=23 status=Started payload=10-02-34-12-02-17-00-00-A0-49-9E-71-69-79-59-C3-23-5E-7D-C2-56-E0-0F-95
+SIMULATED house: 12.74 V, -5.25 A, 77.1%; starter: 12.79 V (current/SOC unavailable)
+Advertising counter=24 status=Started payload=10-02-34-12-02-18-00-00-87-2C-12-C8-22-94-4D-2C-8B-0E-9E-BF-72-4D-A0-47
+SIMULATED house: 12.74 V, -5.25 A, 77.1%; starter: 12.79 V (current/SOC unavailable)
+Advertising counter=25 status=Started payload=10-02-34-12-02-19-00-00-42-B3-9C-78-B6-87-0B-FF-CE-6A-7D-B8-1F-91-F2-97
+Broadcast stopped.
