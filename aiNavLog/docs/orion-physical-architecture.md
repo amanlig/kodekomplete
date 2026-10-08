@@ -156,5 +156,5 @@ reading accuracy are still unverified; mobile packaging, permissions, secure key
 storage and background operation remain pending.
 
 Related: [software class diagram](device-interface-class-diagram.md),
-[current handoff](status-2026-10-02.md), [monitor source](../device-interface/src/monitor.rs),
+[current handoff](status/status-2026-10-02.md), [monitor source](../device-interface/src/monitor.rs),
 [store source](../device-interface/src/store.rs).

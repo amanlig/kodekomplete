@@ -39,7 +39,7 @@ The same colors apply in all diagrams below. The table supplies text equivalents
 so status does not depend on color alone. Data contracts remain provisional even
 though their current definitions are implemented. Codec status excludes transport
 framing, CAN fragmentation/reassembly, AIS payload assembly, normalization and
-hardware integration; see the [NMEA usage guide](rust-nmea-libraries.md) and
+hardware integration; see the [NMEA usage guide](dependencies/rust-nmea-libraries.md) and
 [Victron vendor guide](../device-interface/vendor/README.md).
 
 ## Components and dependencies
@@ -368,7 +368,7 @@ work. Victron advertisement monitoring, normalization and local storage are impl
 
 ## NMEA codec interfaces
 
-See the [NMEA library usage guide](rust-nmea-libraries.md) for examples and library
+See the [NMEA library usage guide](dependencies/rust-nmea-libraries.md) for examples and library
 configuration.
 
 These transport-independent codecs operate on complete protocol messages, before

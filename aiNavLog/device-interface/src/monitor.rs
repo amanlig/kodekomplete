@@ -1,22 +1,24 @@
 //! Foreground Victron advertisement reception, normalization and local persistence.
+#[cfg(feature = "desktop")]
+use crate::{bluetooth::AdvertisementScan, BluetoothAdapter};
 use crate::{
-    bluetooth::AdvertisementScan,
     store::ObservationStore,
     vendor::victron::{
         OrionRecord, VictronAdvertisement, VictronAdvertisementDecoder, VictronError,
         VictronMessage, VICTRON_COMPANY_ID,
     },
-    BluetoothAdapter, DecodedReading, DeviceError, DeviceResult, Observation,
-    ObservationNormalizer, QualityStatus,
+    DecodedReading, DeviceError, DeviceResult, Observation, ObservationNormalizer, QualityStatus,
 };
+#[cfg(feature = "desktop")]
 use btleplug::api::{CentralEvent, CentralState};
 use std::{
     collections::VecDeque,
-    future::Future,
-    io::Read,
-    path::{Path, PathBuf},
+    path::PathBuf,
     time::{Duration, Instant, SystemTime},
 };
+#[cfg(feature = "desktop")]
+use std::{future::Future, io::Read, path::Path};
+#[cfg(feature = "desktop")]
 use zeroize::Zeroizing;
 
 #[derive(Debug, Clone)]
@@ -282,20 +284,24 @@ pub fn normalize_victron(message: &VictronMessage) -> DeviceResult<Vec<Observati
 }
 
 /// Testable source seam. stop must clean up after a failed/cancelled start too.
+#[cfg(feature = "desktop")]
 pub trait AdvertisementSource {
     fn start(&mut self) -> impl Future<Output = DeviceResult<()>> + Send;
     fn next(&mut self) -> impl Future<Output = DeviceResult<VictronAdvertisement>> + Send;
     fn stop(&mut self) -> impl Future<Output = DeviceResult<()>> + Send;
 }
+#[cfg(feature = "desktop")]
 pub struct BluetoothAdvertisementSource {
     index: usize,
     scan: Option<AdvertisementScan>,
 }
+#[cfg(feature = "desktop")]
 impl BluetoothAdvertisementSource {
     pub fn new(index: usize) -> Self {
         Self { index, scan: None }
     }
 }
+#[cfg(feature = "desktop")]
 impl AdvertisementSource for BluetoothAdvertisementSource {
     async fn start(&mut self) -> DeviceResult<()> {
         self.stop().await?;
@@ -337,6 +343,7 @@ impl AdvertisementSource for BluetoothAdvertisementSource {
 
 /// Keys are provided through a private local file, never command-line values.
 /// On Unix require owner-only permissions; Windows ACLs are managed by the user.
+#[cfg(feature = "desktop")]
 pub fn read_key_file(path: &Path) -> DeviceResult<Zeroizing<String>> {
     let mut file = std::fs::File::open(path)
         .map_err(|e| DeviceError::Configuration(format!("Cannot open key file: {e}")))?;
@@ -375,6 +382,7 @@ pub fn read_key_file(path: &Path) -> DeviceResult<Zeroizing<String>> {
 /// Run until shutdown, retrying scan failures. Storage failures are fatal: we do
 /// not display a sample as persisted when its transaction failed. The caller
 /// must await this future for scan cleanup; forcibly aborting it is not graceful.
+#[cfg(feature = "desktop")]
 pub async fn run_victron_monitor(
     config: MonitorConfig,
     shutdown: impl Future<Output = DeviceResult<()>>,
@@ -384,6 +392,7 @@ pub async fn run_victron_monitor(
     run_with_source(config, source, shutdown, report).await
 }
 
+#[cfg(feature = "desktop")]
 pub async fn run_with_source<S: AdvertisementSource>(
     config: MonitorConfig,
     mut source: S,
@@ -522,6 +531,7 @@ pub async fn run_with_source<S: AdvertisementSource>(
     }
     outcome.and(cleanup).and(stopped.map(|_| ()))
 }
+#[cfg(feature = "desktop")]
 fn warn_once(
     monitor: &mut VictronMonitor,
     last: &mut String,
@@ -543,6 +553,7 @@ fn warn_once(
     Ok(())
 }
 
+#[cfg(feature = "desktop")]
 fn monotonic_now() -> Instant {
     tokio::time::Instant::now().into_std()
 }

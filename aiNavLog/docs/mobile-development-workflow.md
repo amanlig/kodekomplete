@@ -64,7 +64,23 @@ now renders readings fed by the desktop Rust service. Browser verification passe
 for encrypted simulator packet replay through production decoding, SQLite and HTTP
 to `/elec`, including stale hiding and recovery. This bypasses radio reception.
 The native module, mobile storage integration and signed iPhone installation remain
-unimplemented. See the [October 6 handoff](status-2026-10-06.md) for tomorrow's work.
+unimplemented. See the [October 6 handoff](status/status-2026-10-06.md) for tomorrow's work.
 
 The account/enrollment dependency is open and affects the October 16 iPhone
 end-to-end milestone. Simulator and local UI work can continue while it is resolved.
+
+## October 8 continuation — shared Rust core
+
+The Device Interface now has independent Cargo features: default builds enable
+`desktop` and `nmea`, while `--no-default-features` builds the transport-independent
+Victron decoder/monitor, normalization and SQLite store. The platform scanner can
+feed manufacturer payloads into this existing monitor without importing desktop
+btleplug or Linux D-Bus. See [core integration instructions](../device-interface/README.md#shared-rust-core-for-native-integration).
+
+The next adapter will use a local Expo module to connect platform Bluetooth
+reception to this Rust core and deliver stored observations to the electrical UI.
+Expo's [Modules API](https://docs.expo.dev/modules/overview/) supports native Swift
+and Kotlin modules. Rust FFI, target builds, module packaging, platform permissions
+and secure key storage still need implementation and platform verification.
+No phone build is implied by successful Linux core tests. Only Linux and Windows
+Rust targets are installed in the current environment.

@@ -59,7 +59,7 @@ and monitoring unexpected remote disconnections are not implemented yet.
   bridge are still required. This CLI does not implement the mobile bridge.
 
 See [btleplug's platform setup](https://github.com/deviceplug/btleplug#buildinstallation-notes-for-specific-platforms)
-and the [library evaluation notes](../docs/rust-bluetooth-libraries.md).
+and the [library evaluation notes](../docs/dependencies/rust-bluetooth-libraries.md).
 
 ## Library API and remaining stubs
 
@@ -88,7 +88,7 @@ there is no async cleanup on drop.
 
 ## NMEA decoding and encoding
 
-See the [NMEA library usage guide](../docs/rust-nmea-libraries.md) for complete
+See the [NMEA library usage guide](../docs/dependencies/rust-nmea-libraries.md) for complete
 examples, message boundaries, units, error handling and integration limitations.
 
 Requires Rust **1.96+** (CANboat's minimum). `ProtocolDecoder<Input>` and
@@ -234,11 +234,11 @@ identity with the device's documentation rather than guessing from similar IDs.
 
 ## Third-party licenses
 
-See the [library license inventory](../docs/library-licenses.md) for direct and
+See the [library license inventory](../docs/dependencies/library-licenses.md) for direct and
 transitive dependencies, browser libraries, and redistribution requirements.
 
 The beta deployment targets are **iOS and Android**. Windows/Linux CLI builds are
-evaluation tools. See the [mobile beta license assessment](../docs/library-licenses.md#mobile-beta-distribution-policy)
+evaluation tools. See the [mobile beta license assessment](../docs/dependencies/library-licenses.md#mobile-beta-distribution-policy)
 for target-specific dependency coverage and the remaining mobile packaging review.
 
 ## Local UI bridge
@@ -258,3 +258,37 @@ The bridge is loopback-only, read-only, and allows the browser origin
 See [UI setup](../user-interface/README.md#connect-the-rust-device-interface-locally).
 This development bridge does not implement native mobile integration or add a
 Wi-Fi instrument transport. Advertisement keys and raw packets are never returned.
+
+## Shared Rust core for native integration
+
+The default build enables `desktop` and `nmea`, preserving existing CLI commands,
+Bluetooth scanning and NMEA codecs. A native wrapper can depend on the BMV core
+without those optional integrations:
+
+```toml
+ainavlog-device-interface = { path = "../device-interface", default-features = false }
+```
+
+The core includes the shared Victron decoder, `VictronMonitor`, normalization and
+SQLite storage. A platform scanner supplies `VictronAdvertisement` with its selected
+source ID, company ID, manufacturer payload and original receipt time. The payload
+excludes the Bluetooth company-ID prefix, as documented by the decoder. Call
+`VictronMonitor::ingest` from a serialized owner with both wall-clock receipt time
+and monotonic time; storage commits before freshness is advanced. `tick` handles
+freshness transitions, and `replace_key` clears prior freshness and duplicates.
+
+Platform permission/scanning lifecycle and protected key storage belong to the
+native adapter. The desktop file-key loader, asynchronous scanner and scan recovery
+runner require `desktop`. NMEA codecs can be enabled separately with `features =
+["nmea"]`; their separation does not remove NMEA from the project scope.
+
+```sh
+cargo build --locked --lib --no-default-features
+cargo test --locked --no-default-features
+cargo clippy --locked --no-default-features --all-targets -- -D warnings
+cargo tree --locked --no-default-features --edges normal
+```
+
+These host checks verify reuse without btleplug, D-Bus, Tokio or NMEA in the normal
+core dependency graph. They do not verify iOS/Android cross-compilation, the native
+FFI/module boundary or a phone install; those remain the next integration steps.

@@ -2,7 +2,7 @@
 
 - **Status:** Candidate research retained; btleplug 0.13.3 is installed for the current evaluation implementation.
 - **Candidate research reviewed:** 2026-09-30; local implementation status updated 2026-10-01.
-- **Related strategy:** [Architecture — Communication](../architecture.md#43-communication)
+- **Related strategy:** [Architecture — Communication](../../architecture.md#43-communication)
 
 ## Candidates
 
@@ -23,8 +23,8 @@ Desktop and mobile libraries generally expose Rust APIs over the operating syste
 btleplug 0.13.3 powers discovery, connection/disconnection and live manufacturer
 advertisement reception. The Victron monitor decodes Orion broadcasts, handles
 retries and stale data, and persists observations to SQLite. See the
-[live monitoring guide](victron-live-monitoring.md) and
-[implementation diagram](device-interface-class-diagram.md). Physical Orion and
+[live monitoring guide](../victron-live-monitoring.md) and
+[implementation diagram](../device-interface-class-diagram.md). Physical Orion and
 mobile validation remain pending; installed library support does not establish
 working iOS/Android app integration.
 

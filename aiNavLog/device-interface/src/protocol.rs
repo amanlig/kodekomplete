@@ -1,9 +1,13 @@
 //! Transport-independent message codecs and the provisional reading adapter.
 
+#[cfg(feature = "nmea")]
 pub mod nmea0183;
+#[cfg(feature = "nmea")]
 pub mod nmea2000;
 
+#[cfg(feature = "nmea")]
 pub use nmea0183::{Nmea0183Codec, Nmea0183Message};
+#[cfg(feature = "nmea")]
 pub use nmea2000::Nmea2000Codec;
 
 /// Decode one complete protocol message. Transport framing/reassembly happens

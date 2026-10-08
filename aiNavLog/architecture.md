@@ -72,7 +72,7 @@ Reliable data capture, usability aboard a boat, handling interrupted connectivit
 | Heart Interface is an example external device; specific models and integration protocols are TBD. | Confirmed |
 | Rust is the implementation language for services within the aiNavLog system. | Confirmed |
 | Beta deployment targets are iOS and Android. Minimum OS versions, supported device architectures, budget, and delivery dates remain TBD. | Confirmed targets; details TBD |
-| Dependency licenses must preserve distribution on both beta targets. Prefer permissive dependencies and retain required third-party notices. | Confirmed objective; implementation policy in [library licenses](docs/library-licenses.md#mobile-beta-distribution-policy) |
+| Dependency licenses must preserve distribution on both beta targets. Prefer permissive dependencies and retain required third-party notices. | Confirmed objective; implementation policy in [library licenses](docs/dependencies/library-licenses.md#mobile-beta-distribution-policy) |
 
 R-11 requires external identity-provider communication for sign-in. Authentication exchanges do not upload boat logs, routes, or media; any hosted identity/session metadata and authentication service deployment remain proposed decisions in Section 4.7.
 
@@ -110,7 +110,7 @@ flowchart LR
 
 ### 4.1 Application availability
 
-**Confirmed:** The beta release targets iOS and Android. Make the application easily installable on these mobile platforms. Dependency selection must preserve distribution on both targets; see the [mobile beta licensing policy](docs/library-licenses.md#mobile-beta-distribution-policy).
+**Confirmed:** The beta release targets iOS and Android. Make the application easily installable on these mobile platforms. Dependency selection must preserve distribution on both targets; see the [mobile beta licensing policy](docs/dependencies/library-licenses.md#mobile-beta-distribution-policy).
 
 **Confirmed:** Fast initial download and installation are priorities. Minimize the bytes transferred for installation and avoid unnecessary dependencies and bundled assets.
 
@@ -136,9 +136,9 @@ See the [BMV-712 and Orion physical architecture](docs/orion-physical-architectu
 
 **Proposed:** Provide separate protocol adapters for NMEA 0183 and NMEA 2000, using compatible adapters or gateways to connect them to the application over Bluetooth where supported in beta. Normalize received instrument observations for data capture and local storage. The initial integration remains read-only and does not introduce boat-equipment control commands. Supported messages, device compatibility, gateway selection, and platform support remain TBD; NMEA support is not assumed for any particular Heart Interface model.
 
-**Research:** See [Rust Bluetooth libraries](docs/rust-bluetooth-libraries.md) for candidate libraries, platform support, and a proposed evaluation approach. btleplug 0.13.3 is installed for BLE discovery, connection and manufacturer-advertisement reception. Gateway selection and physical/mobile validation remain open.
+**Research:** See [Rust Bluetooth libraries](docs/dependencies/rust-bluetooth-libraries.md) for candidate libraries, platform support, and a proposed evaluation approach. btleplug 0.13.3 is installed for BLE discovery, connection and manufacturer-advertisement reception. Gateway selection and physical/mobile validation remain open.
 
-**Implemented evaluation path:** Separate NMEA codecs use nmea-kit for NMEA 0183 and CANboat for NMEA 2000; framing, gateway reception and NMEA observation mapping remain pending. The Victron vendor decoder supports BMV battery-monitor, Orion DC/DC and XS Instant Readout advertisements. Its foreground monitor handles retries, stale status, duplicate suppression, private key-file reload, normalization and atomic SQLite persistence. See the [class diagram](docs/device-interface-class-diagram.md), [NMEA guide](docs/rust-nmea-libraries.md), and [live monitoring guide](docs/victron-live-monitoring.md). Physical Orion validation, the React Native bridge, mobile permissions, secure key storage and background execution remain pending.
+**Implemented evaluation path:** Separate NMEA codecs use nmea-kit for NMEA 0183 and CANboat for NMEA 2000; framing, gateway reception and NMEA observation mapping remain pending. The Victron vendor decoder supports BMV battery-monitor, Orion DC/DC and XS Instant Readout advertisements. Its foreground monitor handles retries, stale status, duplicate suppression, private key-file reload, normalization and atomic SQLite persistence. See the [class diagram](docs/device-interface-class-diagram.md), [NMEA guide](docs/dependencies/rust-nmea-libraries.md), and [live monitoring guide](docs/victron-live-monitoring.md). Physical Orion validation, the React Native bridge, mobile permissions, secure key storage and background execution remain pending.
 
 Victron advertisements use unauthenticated AES-CTR. The monitor requires a 32-character hexadecimal advertisement key, separate from the Bluetooth pairing PIN. Other device communication security depends on the selected protocols and adapters.
 
@@ -598,4 +598,4 @@ Before implementation, prioritize the route source/model, local ownership and gu
 
 ### Implementation schedule
 
-See the [vertical implementation plan](docs/project-plan.md): Electrical, Engine, Route, Authentication/authorization, then Route story; two weeks per slice starting October 5, 2026. This establishes the implementation foundation for the 2027 beta; release qualification is scheduled separately.
+See the [vertical implementation plan](docs/project-plan.md): Electrical and Store deployment/beta distribution run in parallel from October 5, 2026, followed by Engine, Route, Authentication/authorization and Route story in two-week feature slices. The deployment workstream establishes repeatable builds, installation and tester updates early and continues throughout implementation. This establishes the implementation foundation for the 2027 beta; release qualification is scheduled separately.

@@ -2,14 +2,14 @@
 
 The Device Interface uses **nmea-kit 0.8.9** for NMEA 0183 and **canboat 8.3.0**
 for NMEA 2000. Both decode and encode messages through the interfaces in
-[`protocol.rs`](../device-interface/src/protocol.rs). This guide describes the
+[`protocol.rs`](../../device-interface/src/protocol.rs). This guide describes the
 implemented wrappers, not every feature offered by the upstream libraries.
 
 ## Dependencies and toolchain
 
 The dependencies are declared in
-[`Cargo.toml`](../device-interface/Cargo.toml); exact resolved versions are in
-[`Cargo.lock`](../device-interface/Cargo.lock).
+[`Cargo.toml`](../../device-interface/Cargo.toml); exact resolved versions are in
+[`Cargo.lock`](../../device-interface/Cargo.lock).
 
 ```toml
 nmea-kit = "0.8.9"
@@ -55,7 +55,7 @@ feed data into the codecs.
 
 ## NMEA 0183 with nmea-kit
 
-Implementation: [`nmea0183.rs`](../device-interface/src/protocol/nmea0183.rs).
+Implementation: [`nmea0183.rs`](../../device-interface/src/protocol/nmea0183.rs).
 
 This example decodes a heading, constructs a new heading using a typed nmea-kit
 sentence, and encodes both through the shared interface:
@@ -112,7 +112,7 @@ reassemble multipart AIS messages, despite the upstream library offering AIS API
 
 ## NMEA 2000 with CANboat
 
-Implementation: [`nmea2000.rs`](../device-interface/src/protocol/nmea2000.rs).
+Implementation: [`nmea2000.rs`](../../device-interface/src/protocol/nmea2000.rs).
 
 A CANboat `Frame` carries a **complete PGN payload**, plus priority, source,
 destination and optional timestamp. It can exceed eight bytes. It is not a raw
@@ -190,7 +190,7 @@ cargo fmt --check
 cargo clippy --locked --all-targets -- -D warnings
 ```
 
-The [codec tests](../device-interface/tests/nmea_codecs.rs) cover heading round
+The [codec tests](../../device-interface/tests/nmea_codecs.rs) cover heading round
 trips, known wind-data bytes, metadata, tag/raw-field preservation, malformed input,
 unavailable values and complete PGN payloads longer than one CAN frame. These are
 in-memory checks; live gateway and mobile integration have not been validated.
@@ -199,6 +199,6 @@ in-memory checks; live gateway and mobile integration have not been validated.
 
 - [nmea-kit 0.8.9 API](https://docs.rs/nmea-kit/0.8.9/nmea_kit/)
 - [CANboat 8.3.0 API](https://docs.rs/canboat/8.3.0/canboat/)
-- [Device Interface README](../device-interface/README.md)
-- [Device Interface class diagram](device-interface-class-diagram.md)
+- [Device Interface README](../../device-interface/README.md)
+- [Device Interface class diagram](../device-interface-class-diagram.md)
 - [Dependency license inventory](library-licenses.md)

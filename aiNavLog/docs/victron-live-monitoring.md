@@ -7,7 +7,7 @@ control commands. NMEA streaming remains a separate integration.
 
 > **2026-10-02:** Orion key setup and physical validation are shelved at the
 > user's request until the device is nearby. The instructions below are retained
-> for resuming later; see the [current handoff](status-2026-10-02.md).
+> for resuming later; see the [current handoff](status/status-2026-10-02.md).
 
 ## Run against the recorded device
 

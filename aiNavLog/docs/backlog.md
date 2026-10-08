@@ -50,4 +50,4 @@ resumed. Preserve device ID `D4:B3:CB:26:5E:75` and the implemented decoder,
 foreground monitor and SQLite store. Software tests pass; physical validation is
 still pending. No substitute key or pairing PIN should be used for validation.
 
-See the [October 2 handoff](status-2026-10-02.md) for the current continuation point.
+See the [October 2 handoff](status/status-2026-10-02.md) for the current continuation point.

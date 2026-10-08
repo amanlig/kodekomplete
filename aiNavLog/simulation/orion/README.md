@@ -100,7 +100,7 @@ test checks storage, duplicates, stale detection, key recovery and missing value
 Build requirements are inherited from `device-interface`, including a C compiler
 for bundled SQLite and Linux vendored D-Bus. No system Bluetooth service is needed
 to run this simulator. This development crate has its own Cargo.lock; it adds no
-new library families beyond the [device-interface inventory](../../docs/library-licenses.md).
+new library families beyond the [device-interface inventory](../../docs/dependencies/library-licenses.md).
 
 ## Components
 
@@ -128,7 +128,7 @@ classDiagram
 ```
 
 Green means implemented within this in-process scope. Physical Orion validation
-remains shelved. See the [handoff](../../docs/status-2026-10-02.md).
+remains shelved. See the [handoff](../../docs/status/status-2026-10-02.md).
 
 The CLI integration test executes the full XS fault scenario, verifies 15 samples
 (105 observations, four NULL values), and confirms that rerunning against an

@@ -6,8 +6,8 @@ not a complete release notice bundle or legal opinion.
 ## Scope and evidence
 
 This inventory covers the ten direct Rust dependencies in
-[Cargo.toml](../device-interface/Cargo.toml), all 139 external Rust packages resolved
-by [Cargo.lock](../device-interface/Cargo.lock), native SQLite bundled on all targets and libdbus bundled by the
+[Cargo.toml](../../device-interface/Cargo.toml), all 139 external Rust packages resolved
+by [Cargo.lock](../../device-interface/Cargo.lock), native SQLite bundled on all targets and libdbus bundled by the
 Linux build, and libraries referenced by the HTML prototypes. The Rust appendix
 includes build-time and alternate-platform dependencies; it does not imply every
 package is linked into the Windows executable.
@@ -129,8 +129,8 @@ No dependency configuration or license election is changed by this document.
 ## Browser prototype libraries
 
 These references appear in the embedded HTML of
-[rout](../rout/index.html), [elec](../elec/index.html), and
-[mech](../mech/index.html). Versions are taken from their script URLs;
+[rout](../../rout/index.html), [elec](../../elec/index.html), and
+[mech](../../mech/index.html). Versions are taken from their script URLs;
 license families below are checked against upstream project documentation.
 Exact CDN package contents and bundled subdependencies still need review when
 preparing a release notice bundle.
