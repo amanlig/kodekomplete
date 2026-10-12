@@ -290,5 +290,9 @@ cargo tree --locked --no-default-features --edges normal
 ```
 
 These host checks verify reuse without btleplug, D-Bus, Tokio or NMEA in the normal
-core dependency graph. They do not verify iOS/Android cross-compilation, the native
-FFI/module boundary or a phone install; those remain the next integration steps.
+core dependency graph. They do not verify iOS/Android cross-compilation or a phone install.
+
+The [native bridge](native-bridge/README.md) now provides a host-tested C ABI for
+session lifecycle, advertisement ingestion and persisted electrical readings.
+Its C integration test uses captured simulator ciphertext. Target packaging,
+Swift/Kotlin Expo modules and phone Bluetooth reception remain the next steps.

@@ -2,6 +2,24 @@
 
 Deferred ideas and investigations to revisit as aiNavLog develops. These entries are not committed delivery plans. Explicit scope decisions are noted per entry.
 
+## Maritime positioning and marketing
+
+- **Status:** Planned later; direction agreed October 12, 2026.
+- **Revisit when:** Core workflows can be demonstrated and representative operator
+  trials can provide evidence; customer discovery may begin earlier.
+
+Align aiNavLog with maritime operational needs, beginning with recognition and
+follow-up of developing equipment conditions. Validate the first customer segment,
+interview operators, collect physical trial evidence and prepare substantiated
+messaging and demonstrations before planning a campaign. Preserve the distinction
+between simulator demonstrations, real-device capability and measured user outcomes.
+
+See [maritime alignment and future marketing](research/maritime-risk-alignment.md)
+for the ShipIn/NorthStandard relevance assessment and proposed requirements.
+
+**Expected outcome:** An agreed audience, evidence-backed positioning and a separate
+marketing project plan. No campaign, external contact or publication is initiated.
+
 ## Explore iPhone development and testing workflow
 
 - **Status:** Deferred

@@ -35,6 +35,14 @@ available feature set; public-store publication remains a separate decision.
 
 ## Delivery approach
 
+**Maritime alignment — agreed October 12:** extend Electrical and Engine with
+meaningful local event history, operator response tracking and recurrence views
+as their measurement/alert contracts mature. Use these to support earlier recognition
+and follow-up of equipment conditions. This is planned work, not demonstrated
+incident reduction. Estimate the additions at slice review and explicitly revise
+dates if needed. A later marketing project will validate the customer segment and
+build claims from product evidence. See [research and requirements](research/maritime-risk-alignment.md).
+
 Each slice connects source → decode/interpret → local persistence → UI, with
 permission/error handling and a repeatable demo. Week one establishes the smallest
 working path; week two completes behavior, verifies failures and persistence,
@@ -56,11 +64,12 @@ opening the electrical page through Device Interface to decoded, locally persist
 BMV readings. Simulator packet replay to the rendered web UI is verified; native
 iPhone Bluetooth reception, Rust bridging and phone-local storage remain in progress.
 
-**Apple Developer enrollment:** **Underway.** The user has initiated the D‑U‑N‑S
-lookup/request process as the prerequisite for organization enrollment. D‑U‑N‑S
-issuance/verification and Apple Developer membership activation are not yet confirmed.
-Next: obtain and verify the company’s D‑U‑N‑S record, complete Apple organization
-enrollment, then register the iPhone and prepare a signed development build.
+**Apple Developer enrollment:** **Submitted; being processed.** On October 12,
+the user provided Apple's enrollment screen for Kode Komplete Software Services Ltd.,
+showing the supplied D‑U‑N‑S number and organization address. Apple is verifying
+the applicant's authority to sign legal agreements and will email completion instructions.
+Membership activation and payment remain unconfirmed. Next: complete Apple's
+verification and enrollment, then register the iPhone and prepare a signed development build.
 
 **Week 1:** establish the mobile app shell, navigation and local data contract;
 define boat/battery ownership identifiers and future authorization boundaries.
@@ -87,7 +96,7 @@ The local desktop/web path from captured simulator packets through the Rust moni
 SQLite and HTTP to the rendered electrical page was verified on October 6, including
 changing SOC, stale hiding and recovery. Native mobile reception/bridge integration
 remains to implement. No Mac is available. Apple Developer enrollment is now
-underway through the D‑U‑N‑S prerequisite; active membership and signing remain open
+submitted and being processed; active membership and signing remain open
 dependencies for the physical-iPhone milestone. See the
 [mobile workflow](mobile-development-workflow.md).
 One BMV-712 permanently monitors the house shunt; its auxiliary input measures
@@ -178,11 +187,19 @@ for the repeatable demonstration and browser test.
 
 ## 2. Store deployment and beta distribution
 
-**Status — October 8, 2026:** **Waiting for D‑U‑N‑S number.** Apple enrollment
-and Google Play organization registration await the company’s D‑U‑N‑S record.
-Google Play developer account setup was initiated on October 8; account creation,
-payment and verification are not yet confirmed. Organization setup depends on the
-company’s D‑U‑N‑S record. Signed builds and tester distribution are not yet established.
+**Status — October 12, 2026:** **Apple enrollment processing; Google account created.**
+Apple's enrollment screen confirms submission as Company / Organization for
+Kode Komplete Software Services Ltd. with the supplied D‑U‑N‑S number. This is
+submission evidence, not confirmation of completed verification or active membership.
+Google Play's selected organization payments profile showed the matching company
+name, address and D‑U‑N‑S number. The user then provided the confirmation screen:
+developer account created and registration fee receipt sent. Account creation and
+fee payment are confirmed. The latest Play Console screen confirms identity
+documents were uploaded and Google is reviewing them; the account owner will
+receive an email when verification completes. Phone-number verification remains
+required and depends on organization/identity verification and document approval.
+Next: await Google's review, then complete phone verification and any remaining tasks.
+Signed builds and tester distribution are not yet established.
 
 **Objective:** establish an environment where a tested change can be built, installed
 and released to testers quickly and repeatedly. This workstream starts with the app
@@ -242,6 +259,12 @@ when prerequisites are delayed. Final beta review/rework is planned for Dec 14�
 with holiday availability recorded explicitly; processing times are not guarantees.
 
 ## 3. Engine
+
+**Shared operational history:** Electrical and Engine should use the common event,
+response and recurrence requirements in the [maritime alignment research](research/maritime-risk-alignment.md#product-requirements).
+Electrical introduces the model around agreed voltage conditions; Engine reuses it
+after its measurements and thresholds are selected. Track monitoring gaps separately,
+distinguish acknowledgement from resolution and verify persistence and repeat events.
 
 **Week 1:** agree the first engine quantities, units, alert meanings and compatible
 source/protocol. Build a simulator for the selected measurements and reuse the
