@@ -23,7 +23,30 @@ A compatible Expo Go app can preview this UI-only version on iPhone/Android.
 Network access from the phone to the development server is required; WSL networking
 may need configuration. A custom development build is required when native BLE/Rust
 is added; Apple signing/enrollment and cloud build setup are still pending.
-No credentials, app identifiers for stores, or uploads are configured here.
+The first Android internal-test build is configured with package
+`com.kodekomplete.com.ainavlog`, linked to the company's Expo organization, and uses
+standalone demo readings. See [manual Google Play deployment](../docs/android-manual-deployment.md).
+Phone-local Rust/Bluetooth reception is still pending.
+
+## Manual Android build
+
+```sh
+npx eas-cli@latest login
+npm run android:configure
+npm run android:archive
+npm run android:build
+```
+
+The `play-internal` profile produces a signed AAB for manual upload to Google Play
+internal testing. `npm run android:apk` optionally produces a standalone APK for
+direct installation. Profiles explicitly force demo mode and exclude local
+dotenv files; normal development HTTP/live mode remains unchanged when
+`EXPO_PUBLIC_DEMO_MODE` is unset. The wrapper limits uploads to this UI project.
+No automatic Play submission, deployment pipeline or OTA update is configured.
+
+Android version codes are managed manually. Increase `expo.android.versionCode`
+before uploading a later build. Local artifacts under `builds/` and private signing
+files are excluded from Git and the EAS upload archive.
 
 The electrical screen follows the original [battery mockup](../elec/index.html):
 House and Starter cards appear together, side by side on wide screens and stacked

@@ -79,6 +79,9 @@ Physical Bluetooth validation remains pending.
 
 ## Further documentation
 
+- [October 13 Google account verification update](docs/status/status-2026-10-13.md)
+- [First Android build and manual internal testing](docs/android-manual-deployment.md)
+
 - [October 8 accomplishments and next steps](docs/status/status-2026-10-08.md)
 
 - [October 6 success and October 7 next steps](docs/status/status-2026-10-06.md)

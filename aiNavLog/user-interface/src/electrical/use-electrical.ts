@@ -3,7 +3,10 @@ import { AppState } from 'react-native';
 import { parseDeviceSample } from './device-client';
 import { type ElectricalSample, simulate } from './model';
 
-const deviceUrl = process.env.EXPO_PUBLIC_DEVICE_INTERFACE_URL?.trim();
+// The first standalone Play build deliberately uses the labelled demo. A desktop
+// loopback URL must not turn a phone build into a permanent connection error.
+const deviceUrl = process.env.EXPO_PUBLIC_DEMO_MODE === '1'
+  ? undefined : process.env.EXPO_PUBLIC_DEVICE_INTERFACE_URL?.trim();
 function foreground() { return AppState.currentState !== 'background' && AppState.currentState !== 'inactive'; }
 export function useElectrical() {
   const [sample, setSample] = useState<ElectricalSample | null>(null);

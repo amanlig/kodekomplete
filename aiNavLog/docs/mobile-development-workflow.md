@@ -1,5 +1,12 @@
 # Mobile development workflow — Electrical slice
 
+**October 13 update:** Google Play verification is complete; Apple remains pending.
+Expo is authenticated and the app is linked to the company's organization project.
+The first standalone Android UI/demo AAB build succeeded for manual Google Play
+internal testing. Its package is `com.kodekomplete.com.ainavlog`; native Rust/Bluetooth
+integration remains a subsequent build. See [build and manual upload instructions](android-manual-deployment.md).
+The older entries below describe the earlier environment and prerequisites.
+
 **October 6, 2026:** current environment is Windows/WSL, without a Mac or an
 enrolled Apple Developer account (confirmed by the user). Repository currently
 contains HTML UI references, Rust components and a new Expo/React Native mobile

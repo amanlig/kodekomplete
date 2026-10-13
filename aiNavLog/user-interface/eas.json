@@ -1,0 +1,29 @@
+{
+  "cli": {
+    "version": ">= 24.13.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "play-internal": {
+      "distribution": "store",
+      "environment": "preview",
+      "node": "24.21.0",
+      "credentialsSource": "remote",
+      "autoIncrement": false,
+      "env": {
+        "EXPO_NO_DOTENV": "1",
+        "EXPO_PUBLIC_DEMO_MODE": "1"
+      },
+      "android": {
+        "buildType": "app-bundle"
+      }
+    },
+    "preview-apk": {
+      "extends": "play-internal",
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  }
+}

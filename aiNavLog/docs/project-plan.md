@@ -187,19 +187,31 @@ for the repeatable demonstration and browser test.
 
 ## 2. Store deployment and beta distribution
 
-**Status — October 12, 2026:** **Apple enrollment processing; Google account created.**
+**Status — October 13, 2026:** **Google Play organization account verified and complete; Apple enrollment still pending (owner reconfirmed October 13).**
 Apple's enrollment screen confirms submission as Company / Organization for
 Kode Komplete Software Services Ltd. with the supplied D‑U‑N‑S number. This is
 submission evidence, not confirmation of completed verification or active membership.
 Google Play's selected organization payments profile showed the matching company
 name, address and D‑U‑N‑S number. The user then provided the confirmation screen:
 developer account created and registration fee receipt sent. Account creation and
-fee payment are confirmed. The latest Play Console screen confirms identity
-documents were uploaded and Google is reviewing them; the account owner will
-receive an email when verification completes. Phone-number verification remains
-required and depends on organization/identity verification and document approval.
-Next: await Google's review, then complete phone verification and any remaining tasks.
-Signed builds and tester distribution are not yet established.
+fee payment are confirmed. On October 13, the owner confirmed the Google account
+is now verified and complete. Organization/identity review and remaining account
+verification tasks are no longer recorded as blockers; this is owner confirmation,
+not an independent Console inspection.
+Next: prepare Android app configuration, signing and a reproducible development
+build, then validate installation and tester distribution. Check Apple's enrollment
+completion separately.
+**First Android build — October 13:** Expo's organization project is linked,
+package `com.kodekomplete.com.ainavlog` and manual AAB profile are configured, and a
+signed cloud build succeeded. This first artifact contains the app shell and
+Electrical demo, establishing the installation/distribution path before native
+instrument integration. Google Play internal testing was selected by the owner;
+the owner's manual upload was rejected because the EAS signing certificate does
+not match Play's required certificate. Recover the existing upload key or arrange
+an upload-key reset before retrying. Tester installation and update validation
+remain pending. See the [October 13 handoff](status/status-2026-10-13.md).
+See [build evidence](android-corrected-build-2026-10-13.md) and
+[manual deployment instructions](android-manual-deployment.md).
 
 **Objective:** establish an environment where a tested change can be built, installed
 and released to testers quickly and repeatedly. This workstream starts with the app
@@ -345,7 +357,7 @@ to assign; access, budgets and supplier commitments are not assumed confirmed.
 | ID / priority | External dependency | Risk and affected outcome | Mitigation / fallback | Proposed owner / resolution checkpoint |
 | --- | --- | --- | --- | --- |
 | RISK-01 / High | Apple Developer Program, App Store Connect, signing and TestFlight/App Review. **Underway Oct 8:** D‑U‑N‑S lookup/request initiated; membership activation pending. | Enrollment or account access, signing failures, review rejection or resubmission can delay iPhone installs and distribution. Reviewers may be unable to exercise hardware-dependent screens. | Establish account ownership and signing during Electrical; prove a signed install early. Prepare accurate privacy/permission disclosures and reviewer demo access with clearly labeled simulated data. Reserve review/rework contingency; distinguish internal testing, external beta approval and public publication. | Product owner: accounts/access; developer: signing/submission. First signed-install checkpoint Oct 16; build/install workflow review Oct 16; beta upload readiness tracked as enrollment activates. |
-| RISK-02 / High | Google Play Console, account verification, app signing, testers and review. **Underway Oct 8:** account setup initiated; registration/payment/verification pending. | Account eligibility or review issues can delay Android distribution. Applicable new personal accounts require 12 continuously opted-in testers for 14 days before applying for production access; recruitment, opt-outs or an unsuccessful application can extend the public-release schedule. | Confirm account type/eligibility early; prove signed Android test distribution. Recruit testers and begin applicable closed testing before deployment. Track eligibility separately from artifact upload and preserve review contingency. | Product owner: account/tester coordination; developer: artifacts/submission. Account/eligibility checkpoint Oct 16; tester readiness checkpoint Oct 16; production eligibility before public submission. |
+| RISK-02 / High | Google Play Console, account verification, app signing, testers and review. **Confirmed Oct 13:** organization developer account created, paid and verified; signing, tester distribution and release review remain pending. | Account eligibility or review issues can delay Android distribution. Applicable new personal accounts require 12 continuously opted-in testers for 14 days before applying for production access; recruitment, opt-outs or an unsuccessful application can extend the public-release schedule. | Confirm account type/eligibility early; prove signed Android test distribution. Recruit testers and begin applicable closed testing before deployment. Track eligibility separately from artifact upload and preserve review contingency. | Product owner: account/tester coordination; developer: artifacts/submission. Account/eligibility checkpoint Oct 16; tester readiness checkpoint Oct 16; production eligibility before public submission. |
 | RISK-03 / High | Engine manufacturer, installed engine/ECU, available sensors and compatible gateway | **The engine device interface is currently unknown.** Signals may be analog, proprietary or available only through an unconfirmed gateway. Missing public protocol documentation, unsupported measurements, no beta-compatible Bluetooth path, cost or procurement delays can prevent a real engine vertical slice within two weeks. | Identify engine make/model/year, existing instruments, connectors, protocols and required measurements. Verify vendor documentation and a feasible read-only Bluetooth gateway before claiming support. Build a simulator behind the same interface. If unresolved, deliver a clearly simulated engine UI and explicitly defer/replan physical integration; do not silently substitute Wi-Fi or infer compatibility. | Product owner: boat/engine details and access; developer: protocol/gateway feasibility. Discovery checkpoint Oct 16, before Engine starts Oct 19; scope decision at that review. |
 | RISK-04 / High | Victron BMV-712 hardware, firmware, owner setup and boat access | Simulator success may not match actual broadcasts, auxiliary starter voltage or installed shunt measurements. Key provisioning, configuration or unavailable boat access can delay qualification. | Validate the actual model/firmware and advertisement key; configure auxiliary voltage and battery parameters; compare house and starter readings with reference measurements. Keep simulator and live data visibly distinct. Physical qualification remains a release prerequisite, with dates assigned once access is known. | Product owner: hardware/access; developer: interoperability. Access plan Oct 16; qualification checkpoint before release candidate acceptance. |
 | RISK-05 / High | iOS/Android native Bluetooth/location APIs, device permissions and mobile build tooling | Rust bridge/packaging or OS permission/lifecycle restrictions may prevent reliable reception, recording or background behavior despite passing desktop tests. Build service availability or required native tooling may delay installs. | Choose the build/install workflow in Electrical; demonstrate BLE-to-UI on the physical iPhone early and validate Android separately. Test denied permissions, stale data, reconnect and restart. Explicitly limit unsupported background behavior rather than assume parity. | Developer. End-to-end Electrical checkpoint Oct 16; location/lifecycle checkpoint Nov 13. |
