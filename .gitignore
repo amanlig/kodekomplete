@@ -1,2 +1,19 @@
-# Private project: keep its contents out of this repository's commits.
-/investment/
+# Publish the application; keep local financial records and authorization private.
+/investment/*
+!/investment/*.py
+!/investment/*.js
+!/investment/*.md
+!/investment/docs/
+!/investment/vendor/
+!/investment/examples/
+!/investment/tests/
+/investment/tests/*
+!/investment/tests/test_public_calculations.js
+!/investment/tests/test_public_portfolio.py
+/investment/**/__pycache__/
+/investment/**/*.pyc
+/investment/.secrets/
+/investment/data/
+/investment/reports/
+/investment/status/
+/investment/archive/

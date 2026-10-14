@@ -1,0 +1,21 @@
+const assert=require('assert');
+const Entry=require('../entry_prices.js'),Profile=require('../profile_settings.js'),Roll=require('../roll_pricing.js');
+// Fictional prices and quantities; no private captures are required.
+const position={symbol:'QBTS',currency:'USD',shares:100,contracts:1,strike:20,expiry:'2030-01-18',cost:1000,premium:100,fees:0};
+const account={account:'LIRA',currency:'USD',positions:[position],rows:[{symbol:'QBTS',net:1100,pnl:200}],pnl:200};
+const edited=Entry.apply(account,{[Entry.key(account,position)]:{currency:'USD',stockPrice:11,optionPrice:2,entryFx:null}});
+assert.equal(edited.positions[0].cost,1100);assert.equal(edited.positions[0].premium,200);
+assert.equal(edited.rows[0].pnl,200);assert.equal(account.positions[0].cost,1000);
+assert(Entry.stockRisk(position,9.5).unacceptable);assert(!Entry.stockRisk(position,9.51).unacceptable);
+const settings={holdings:{[Profile.key(account,position)]:{minimumBid:12}}};
+assert.equal(Profile.minimumBid(account,position,settings),12);
+assert.equal(Profile.minimumBid({...account,account:'RRSP'},position,settings),10);
+assert.throws(()=>Profile.validateMinimum(-1));
+const input={shares:100,contracts:1,stockCost:1000,originalPremium:100,oldAsk:1,newBid:2,fees:5,oldStrike:20,newStrike:15,currentStock:12,targetStock:12,valuationDate:'2026-01-01',oldExpiry:'2030-01-18',newExpiry:'2031-01-17'};
+const result=Roll.simulate(input);
+assert.equal(result.netCredit,95);assert.equal(result.target.roll,395);
+assert.equal(result.at(30).roll,695);assert.equal(result.combinedBreakeven,8.05);
+assert.equal(result.at(0).roll,-805);
+assert.equal(Roll.nextStrike([{validated:true,expiry:input.newExpiry,strike:14},{validated:true,expiry:input.newExpiry,strike:16}],input.newExpiry,15),16);
+assert.throws(()=>Roll.simulate({...input,contracts:2}));
+console.log('Synthetic entry-price, threshold, profile and rollover checks passed.');
