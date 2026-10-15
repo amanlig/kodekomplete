@@ -17,3 +17,5 @@
 /investment/reports/
 /investment/status/
 /investment/archive/
+
+!/investment/tests/test_public_fx_samples.py

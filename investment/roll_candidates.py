@@ -115,10 +115,6 @@ def main():
     try:
         if args.purchase_price_usd is not None and (not math.isfinite(args.purchase_price_usd) or args.purchase_price_usd<=0):
             raise ImporterError('A positive USD purchase price is required')
-        macro = json.loads((ROOT/'reports/macro-data.json').read_text())
-        fx = float(macro['cad_per_usd'])
-        if not math.isfinite(fx) or fx<=0:
-            raise ImporterError('A valid CAD per USD assumption is required')
         base, token = authorize(ROOT/'.secrets/questrade.json')
         for account in INPUTS if args.all else [args.account]:
             document = json.loads((ROOT/'data'/INPUTS[account]).read_text())
@@ -126,7 +122,14 @@ def main():
             if not positions:
                 raise ImporterError('No matching saved covered-call holding')
             for position in positions:
-                purchase = args.purchase_price_usd if not args.all and args.purchase_price_usd is not None else float(position['stock_cost_total'])/position['shares']/(1 if account=='LIRA' else fx)
+                entry_fx = 1 if account=='LIRA' else float(position.get('purchase_fx_to_cad') or 0)
+                explicit_purchase = not args.all and args.purchase_price_usd is not None
+                if not explicit_purchase and (not math.isfinite(entry_fx) or entry_fx<=0):
+                    if args.all:
+                        print(f'{account} {position["symbol"]}: skipped; historical purchase FX is missing.', flush=True)
+                        continue
+                    raise ImporterError('Enter historical purchase FX or supply --purchase-price-usd')
+                purchase = args.purchase_price_usd if explicit_purchase else float(position['stock_cost_total'])/position['shares']/entry_fx
                 capture_data = capture(lambda route: fetch(base+route, token),
                                        lambda ids: fetch(base+'markets/quotes/options', token, json_body={'optionIds': ids}),
                                        position, datetime.now(ZoneInfo('America/Vancouver')).date(), account, purchase)

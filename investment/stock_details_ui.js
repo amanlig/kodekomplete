@@ -67,12 +67,13 @@ function renderStockRisk(){
  for(const account of visibleAccounts()){
   for(const position of account.positions||[]){
    const fx=account.currency==='USD'?1:Number(document.querySelector('#fx-assumption').value);
-   const risk=EntryPrices.stockRisk(position,stock?.bidPrice,fx);
+   const risk=EntryPrices.stockRisk(position,stock?.bidPrice,fx,EntryPrices.purchaseFx(account,position));
    const minimumBid=ProfileSettings.minimumBid(account,position,profileSettings);
    const thresholdMet=Number.isFinite(stock?.bidPrice)&&Number.isFinite(minimumBid)&&stock.bidPrice*fx>=minimumBid;
    const section=element('section',undefined,'entry-form');panel.append(section);
    section.append(element('h3',account.account+' · '+symbol));
-   if(!risk){section.append(element('p','A positive purchase cost and valid currency conversion are needed to calculate break-even.','warning'));continue;}
+   if(position.purchaseContext)section.append(element('p',position.purchaseContext,'context'));
+   if(!risk){section.append(element('p','Enter a positive purchase cost and historical purchase FX in Profile → Settings (or the entry-price editor) to calculate this holding.','warning'));continue;}
    const status=risk.change===null?'Loss status unavailable: no usable bid.':risk.unacceptable?'UNACCEPTABLE LOSS · 5% limit breached':risk.change<0?'Within your limit · stock loss is below 5%':'Stock is at or above purchase cost';
    section.append(element('p',status,risk.unacceptable?'loss-alert':risk.change===null?'warning':'context'));
    section.append(element('p',risk.change===null?'Bid threshold status unavailable.':thresholdMet?'Your minimum acceptable bid is met.':'Bid is below your minimum acceptable profit threshold.',risk.change===null?'warning':thresholdMet?'context':'loss-alert'));
@@ -81,8 +82,8 @@ function renderStockRisk(){
    for(const [label,value] of [['Purchase price (USD/share)',detailPrice(risk.purchaseUsd)],['Stock P/L at current bid',amount(risk.stockPnl,account.currency)],['Change from purchase',change],['Minimum bid to break even',detailPrice(risk.breakevenBid)],['Your minimum acceptable bid ('+account.currency+')',amount(minimumBid,account.currency)],['Minimum bid for loss below 5%',detailPrice(risk.acceptableBid)]]){
     const box=element('div');box.append(element('span',label,'label'),element('strong',value));grid.append(box);
    }
-   section.append(element('p',`Stock break-even = total stock purchase cost ÷ shares. Exact basis: USD ${risk.purchaseUsd.toFixed(5)}/share; minimum bids rounded up to cent increments. A loss of exactly 5% is unacceptable. Stock P/L excludes option premiums and closing fees.`,'context'));
-   if(account.currency!=='USD')section.append(element('p',`CAD cost is converted using the editable ${fx} CAD/USD assumption. Changing FX changes these USD bid thresholds.`,'context'));
+   section.append(element('p',`Stock break-even = total stock purchase cost ÷ shares. Original purchase basis: USD ${risk.purchaseUsd.toFixed(5)}/share; minimum bids rounded up to cent increments. A loss of exactly 5% is unacceptable. Stock P/L excludes option premiums and closing fees.`,'context'));
+   if(account.currency!=='USD')section.append(element('p',`Original USD purchase price uses purchase-time FX ${position.entryFx} CAD/USD. Current proceeds and CAD-cost break-even use today’s editable FX ${fx} CAD/USD. Today’s FX does not change your original USD purchase price.`,'context'));
   }
  }
 }
@@ -103,9 +104,9 @@ function renderEntryEditor(container,symbol){
    function priceInput(label,value){const wrap=element('label',label),input=element('input');input.type='number';input.min='0';input.step='any';input.value=value===null||value===undefined?'':String(value);wrap.append(input);fields.append(wrap);return {wrap,input};}
    const stock=priceInput('Stock purchase price per share',saved?.stockPrice??null);
    const call=priceInput('Option sale premium per share',saved?.optionPrice??null);
-   const fx=priceInput('Historical entry FX · CAD per USD',saved?.entryFx??null);
+   const fx=priceInput('Historical entry FX · CAD per USD',saved?.entryFx??position.entryFx??null);
    const original=element('p',`Original cost/share: ${amount(position.cost===null?null:position.cost/position.shares,account.currency)} · original option premium/share: ${amount(position.premium===null?null:position.premium/(position.contracts*100),account.currency)}`,'context');form.append(original);
-   function updateCurrency(){fx.wrap.hidden=currency.value===account.currency;fx.input.required=!fx.wrap.hidden;fx.input.min=fx.wrap.hidden?'0':'0.00000001';stock.wrap.firstChild.textContent=`Stock purchase price (${currency.value}/share)`;call.wrap.firstChild.textContent=`Option sale premium (${currency.value}/share)`;}
+   function updateCurrency(){fx.wrap.hidden=account.currency!=='CAD';fx.input.required=currency.value!==account.currency;fx.input.min=fx.wrap.hidden?'0':'0.00000001';stock.wrap.firstChild.textContent=`Stock purchase price (${currency.value}/share)`;call.wrap.firstChild.textContent=`Option sale premium (${currency.value}/share)`;}
    currency.addEventListener('change',updateCurrency);updateCurrency();
    const actions=element('div',undefined,'entry-actions');form.append(actions);
    const save=element('button','Save entry prices');save.type='submit';save.className='primary';actions.append(save);
@@ -122,7 +123,7 @@ function renderEntryEditor(container,symbol){
     const number=input=>input.value.trim()===''?null:Number(input.value);
     const value={currency:currency.value,stockPrice:number(stock.input),optionPrice:number(call.input),entryFx:number(fx.input)};
     try{EntryPrices.validate(value,account.currency);}catch(error){status.textContent=error.message;return;}
-    const next={...entryOverrides};if(value.stockPrice===null&&value.optionPrice===null)delete next[entryKey];else next[entryKey]=value;commit(next);
+    const next={...entryOverrides};if(value.stockPrice===null&&value.optionPrice===null&&value.entryFx===null)delete next[entryKey];else next[entryKey]=value;commit(next);
    });
    reset.addEventListener('click',()=>{const next={...entryOverrides};delete next[entryKey];commit(next);stock.input.value='';call.input.value='';fx.input.value='';currency.value=account.currency;updateCurrency();status.textContent=entryStorageAvailable?'Original cost and premium restored.':'Original values restored for this session; browser storage is unavailable.';});
   }

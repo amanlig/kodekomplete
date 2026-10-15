@@ -9,6 +9,7 @@ import subprocess
 import sys
 import threading
 
+import fx_samples
 from macro_data import usd_cad
 from roll_candidates import INPUTS, SYMBOLS, output_path
 
@@ -55,7 +56,44 @@ class MacroFeed:
 
 
 class DashboardHandler(SimpleHTTPRequestHandler):
+    def send_json(self, value, status=200):
+        payload = json.dumps(value).encode()
+        self.send_response(status)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Cache-Control', 'no-store')
+        self.send_header('Content-Length', str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+
     def do_POST(self):
+        if self.path in {'/api/fx-samples', '/api/fx-samples/ocr', '/api/fx-samples/delete'}:
+            port = self.server.server_port
+            if self.headers.get('Origin') not in {f'http://localhost:{port}', f'http://127.0.0.1:{port}'}:
+                self.send_json({'error': 'Use this dashboard origin.'}, 403)
+                return
+            try:
+                limit = 8 * 1024 * 1024 if self.path.endswith('/ocr') else 16384
+                length = int(self.headers.get('Content-Length', '0'))
+                if not 0 < length <= limit:
+                    raise ValueError('Request is empty or too large (image limit: 8 MB).')
+                body = self.rfile.read(length)
+                if self.path.endswith('/ocr'):
+                    self.send_json(fx_samples.ocr(body))
+                elif self.path.endswith('/delete'):
+                    request = json.loads(body)
+                    identifier = request.get('id')
+                    if type(identifier) is not int or identifier <= 0:
+                        raise ValueError('Choose a saved sample.')
+                    with fx_samples.connect() as db:
+                        db.execute('DELETE FROM samples WHERE id=?', (identifier,))
+                    self.send_json({'deleted': identifier})
+                else:
+                    self.send_json(fx_samples.save(json.loads(body)), 201)
+            except (ValueError, TypeError, KeyError) as error:
+                self.send_json({'error': str(error)}, 400)
+            except (OSError, subprocess.SubprocessError):
+                self.send_json({'error': 'Local OCR or storage unavailable. You can enter the fields manually.'}, 503)
+            return
         if self.path != '/api/roll-candidates/refresh':
             self.send_error(404)
             return
@@ -101,6 +139,9 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             ROLL_REFRESH_LOCK.release()
 
     def do_GET(self):
+        if self.path == '/api/fx-samples':
+            self.send_json({'samples': fx_samples.records()})
+            return
         if self.path.split('?', 1)[0] == '/api/macro':
             payload = json.dumps(self.server.feed.snapshot()).encode()
             self.send_response(200)

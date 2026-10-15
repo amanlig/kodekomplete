@@ -41,7 +41,7 @@ function renderRollEditor(container,symbol){
      refresh.disabled=true;refresh.textContent='Refreshing quotes…';
      try{
       const effective=visibleAccounts().find(a=>a.account===account.account)?.positions.find(p=>EntryPrices.key(account,p)===key);
-      const fx=account.currency==='USD'?1:Number(document.querySelector('#fx-assumption').value);
+      const fx=EntryPrices.purchaseFx(account,effective);
       const purchase=effective?.cost/effective?.shares/fx;
       if(!Number.isFinite(purchase)||purchase<=0)throw new Error('Enter a positive stock purchase price and currency conversion before fetching the market strikes.');
       const response=await fetch('/api/roll-candidates/refresh',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({account:account.account,symbol,purchasePriceUsd:purchase}),signal:AbortSignal.timeout(100000)});
@@ -67,7 +67,9 @@ function renderRollEditor(container,symbol){
      if(effectivePosition.cost===null||effectivePosition.premium===null)throw new Error('Enter stock purchase cost and original option sale premium first.');
      const valuationDate=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Vancouver',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
      inputs.newExpiry.min=valuationDate;
-     const settings={shares:position.shares,contracts:position.contracts,stockCost:effectivePosition.cost/fx,
+     const purchaseFx=EntryPrices.purchaseFx(account,effectivePosition);
+     if(!purchaseFx)throw new Error('Enter historical purchase FX in Profile → Settings before simulating a CAD holding.');
+     const settings={shares:position.shares,contracts:position.contracts,stockCost:effectivePosition.cost/purchaseFx,
       originalPremium:effectivePosition.premium/fx,oldStrike:position.strike,oldExpiry:position.expiry,valuationDate,
       currentStock:stock?.bidPrice??0,newExpiry:inputs.newExpiry.value,symbol,account:account.account};
      for(const name of ['oldAsk','newStrike','newBid','fees','targetStock'])settings[name]=Number(inputs[name].value);
@@ -146,7 +148,7 @@ function renderRollResults(panel,result,input,stock,quote,account){
  const sourceTime=quote?.captured_at||marketDetails?.captured_at;
  const capturedTime=sourceTime?new Date(sourceTime).toLocaleString('en-CA',{timeZone:'America/Vancouver',timeZoneName:'short'}):'unavailable';
  panel.append(element('p',`Existing call capture: ${capturedTime}. Delay: ${detailNumber(quote?.delay)} seconds. Listed recommendation candidates have captured quotes and validated standard deliverables. Manually entered replacement values are unverified scenarios. Displayed size does not guarantee a fill.`,'context'));
- if(account.currency!=='USD')panel.append(element('p','CAD book cost and premium are converted using the editable conversion assumption; the simulator reports USD.','context'));
+ if(account.currency!=='USD')panel.append(element('p','The original stock cost uses historical purchase FX; the simulator reports USD. Original CAD option premium is shown as a USD equivalent using the current conversion assumption, not a verified historical option-sale rate. CAD returns may differ with future FX.','context'));
  if(!result.sameExpiry)panel.append(element('p',`Keep-current outcomes below are at ${input.oldExpiry}; rollover outcomes are at ${input.newExpiry}. The table assumes the same stock price at each separate expiry; it is not a comparison at the same date.`,'warning'));
  renderRollChart(panel,result,input);
  panel.append(element('h3','Expiry payoff scenarios · total USD P/L'));

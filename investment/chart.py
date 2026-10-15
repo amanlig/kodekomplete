@@ -49,6 +49,8 @@ def account_widget(document, scenario=None):
         expiry=p['call_expiry'], snapshotStock=float(p['stock_bid']), snapshotCall=float(p['call_ask']),
         cost=float(saved[p['symbol']]['stock_cost_total']) if saved[p['symbol']].get('stock_cost_total') is not None else None,
         premium=float(saved[p['symbol']]['call_premium_net_total']) if saved[p['symbol']].get('call_premium_net_total') is not None else None,
+        entryFx=float(saved[p['symbol']]['purchase_fx_to_cad']) if saved[p['symbol']].get('purchase_fx_to_cad') is not None else None,
+        purchaseContext=saved[p['symbol']].get('purchase_context'),
         fees=float(p['closing_fees']),
         markSource='api' if scenario or document.get('position_source') == 'Questrade API' else 'snapshot') for p in positions]
     total = sum((Decimal(r['net']) for r in rows), Decimal(0))
@@ -96,6 +98,7 @@ button{font:inherit;padding:9px 14px;border:1px solid #bbc9d8;border-radius:7px;
 <p id="macro-update-status" class="context" aria-live="polite">Saved capture · checking automatic refresh…</p>
 <p class="context">Yahoo market reference; quotes may be delayed. Historical line shows the past month of daily observations.</p></section>
 <section class="controls" id="stock-details" aria-label="Selected stock and option details" hidden></section>
+<section class="controls" id="fx-entry" aria-label="FX transaction sample entry"></section>
 <div class="widgets" id="widgets"></div>
 <p class="foot">Each widget states its currency and source. Saved screenshot marks are estimates; captured scenarios use the supplied quotes and FX assumptions.
 P/L combines stock and short-call book-value gains, using opening premium proxies. Fees are currently zero placeholders.
@@ -248,7 +251,7 @@ function updateFilters(){
 document.querySelector('#stock-filter').addEventListener('change',updateFilters);
 document.querySelector('#account-filter').addEventListener('change',updateFilters);
 renderAccounts();
-</script><script>__ROLL_PRICING__</script><script>__ROLL_UI__</script><script>__STOCK_DETAILS_UI__</script><script>__PROFILE_UI__</script></body></html>'''
+</script><script>__ROLL_PRICING__</script><script>__ROLL_UI__</script><script>__STOCK_DETAILS_UI__</script><script>__PROFILE_UI__</script><script>__FX_SAMPLES_UI__</script></body></html>'''
 
 
 def main():
@@ -303,6 +306,7 @@ def main():
                                .replace('__ENTRY_PRICES__', (ROOT/'entry_prices.js').read_text())
                                .replace('__PROFILE_SETTINGS__', (ROOT/'profile_settings.js').read_text())
                                .replace('__PROFILE_UI__', (ROOT/'profile_ui.js').read_text())
+                               .replace('__FX_SAMPLES_UI__', (ROOT/'fx_samples_ui.js').read_text())
                                .replace('__ROLL_PRICING__', (ROOT/'roll_pricing.js').read_text())
                                .replace('__ROLL_UI__', (ROOT/'roll_ui.js').read_text())
 )

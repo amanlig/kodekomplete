@@ -19,3 +19,15 @@ assert.equal(result.at(0).roll,-805);
 assert.equal(Roll.nextStrike([{validated:true,expiry:input.newExpiry,strike:14},{validated:true,expiry:input.newExpiry,strike:16}],input.newExpiry,15),16);
 assert.throws(()=>Roll.simulate({...input,contracts:2}));
 console.log('Synthetic entry-price, threshold, profile and rollover checks passed.');
+// Historical purchase FX fixes USD acquisition basis; current FX values CAD proceeds.
+const cad={...account,account:'TFSA',currency:'CAD'};
+const cadPosition={...position,cost:1400,entryFx:1.4};
+const r1=Entry.stockRisk(cadPosition,10,1.3,Entry.purchaseFx(cad,cadPosition));
+const r2=Entry.stockRisk(cadPosition,10,1.5,Entry.purchaseFx(cad,cadPosition));
+assert.equal(r1.purchaseUsd,10);assert.equal(r2.purchaseUsd,10);
+assert.equal(r1.stockPnl,-100);assert.equal(r2.stockPnl,100);
+assert(r1.unacceptable);assert(!r2.unacceptable);
+assert.equal(Entry.purchaseFx(cad,position),null);
+assert.equal(Entry.stockRisk(cadPosition,10,1.3,null),null);
+const historical=Entry.apply({...cad,positions:[cadPosition]}, {[Entry.key(cad,cadPosition)]:{currency:'USD',stockPrice:10,optionPrice:null,entryFx:1.4}});
+assert.equal(historical.positions[0].cost,1400);assert.equal(historical.positions[0].entryFx,1.4);

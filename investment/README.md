@@ -47,6 +47,10 @@ sync currently supports a uniquely identified active LIRA. RRSP/TFSA snapshots
 are entered locally; market quotes can still be sourced from Questrade.
 
 Profile → Settings configures purchase prices and minimum stock bid per holding.
+For CAD holdings, enter purchase-time CAD per USD FX in Settings. Original USD
+purchase basis and the rollover strike floor use historical FX; current CAD
+proceeds and break-even use the current conversion assumption. Missing historical
+FX blocks rollover calculations instead of substituting today’s rate.
 Settings are stored in your browser, separately by account and stock. The rollover
 rule chooses purchase + USD 5 rounded up to the next listed strike, with editable
 expiry range and minimum worthwhile net credit. Quote freshness and displayed
@@ -62,3 +66,25 @@ node tests/test_public_calculations.js
 
 These checks use synthetic fixtures and do not require account credentials or
 private portfolio files.
+
+## FX sample entry
+
+Expand **FX model · add transaction samples** in the dashboard. Paste a PNG/JPEG
+confirmation (up to 8 MB), or select a file. Local Tesseract OCR proposes fields;
+review and correct every field, select the account and confirm before saving.
+Manual entry works if OCR is unavailable. USD converted means the confirmation
+subtotal after commission, not gross security value. CAD totals must reconcile
+with the applied CAD/USD rate. Exact duplicate entries are rejected.
+
+Structured data is stored locally in `data/fx-samples.sqlite3`, excluded from Git.
+Images are used in a temporary OCR directory that is removed after extraction;
+they are not stored in the database or sent to an external image service. Yahoo
+receives only a historical date query. Missing Yahoo observations remain missing;
+there is no fallback to a different date. JSON export and sample deletion are
+available in the entry panel. The dataset does not modify portfolio holdings.
+No prediction model or 1% accuracy claim is included at this stage.
+
+Install Tesseract with English language data on a new machine. The current local
+setup uses isolated Ubuntu packages under `.tools/ocr` without requiring sudo.
+Restart `dashboard_server.py` after updating its source. Existing browser profile
+and holding settings remain separate from the SQLite dataset.
