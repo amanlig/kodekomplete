@@ -5,11 +5,12 @@ Electrical uses visibly labeled demo readings; Engine and Routes are coming-next
 screens. It launches without Metro, a laptop or a live device endpoint. Rust,
 Bluetooth scanning and phone-local instrument storage are not yet packaged.
 
-**Play release blocked by signing-key mismatch:** the corrected package is
-`com.kodekomplete.com.ainavlog`, but Play rejected the newly generated EAS key.
-Resolve the existing upload-key requirements before rebuilding or uploading again;
-see the [October 13 handoff](status/status-2026-10-13.md).
-The rejected artifact is `user-interface/builds/ainavlog-corrected-package-1.0.0-1.aab` or
+**Internal release active — October 14:** the owner’s Play Console screenshot
+confirms release 1.0.0 / version code 1 is available to internal testers for
+`com.kodekomplete.com.ainavlog`. The prior signing mismatch is resolved for this
+release. Physical tester installation and native instrument integration remain
+pending; see the [October 14 status](status/status-2026-10-14.md).
+The accepted corrected artifact is `user-interface/builds/ainavlog-corrected-package-1.0.0-1.aab` or
 [download the corrected AAB](https://expo.dev/artifacts/eas/1KKm0M4YkfGByxPxLR8v6w0aXSTEzSKfJreogqNE_HI.aab).
 See [corrected build evidence and checksum](android-corrected-build-2026-10-13.md).
 The original AAB used a different package and is superseded.

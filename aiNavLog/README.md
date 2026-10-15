@@ -79,8 +79,10 @@ Physical Bluetooth validation remains pending.
 
 ## Further documentation
 
+- [October 14 internal release active](docs/status/status-2026-10-14.md)
 - [October 13 Google account verification update](docs/status/status-2026-10-13.md)
 - [First Android build and manual internal testing](docs/android-manual-deployment.md)
+- [Android phone emulator](docs/android-emulator.md)
 
 - [October 8 accomplishments and next steps](docs/status/status-2026-10-08.md)
 

@@ -1,6 +1,10 @@
 # Corrected Android package build — October 13, 2026
 
-**Play upload blocked:** the owner attempted upload and Play rejected this AAB's
+**Historical October 13 rejection; resolved October 14:** the owner’s latest
+Console screenshot shows this version available to internal testers. See
+[October 14 status](status/status-2026-10-14.md).
+
+Original record: the owner attempted upload and Play rejected this AAB's
 signing certificate. See the [end-of-day handoff](status/status-2026-10-13.md)
 for fingerprints and recovery steps. Do not retry this artifact unchanged.
 
@@ -29,7 +33,7 @@ was not changed. No Rust/Bluetooth integration, successful Google Play upload or
 installation is claimed. The new package's signing credentials are managed by
 Expo; no private keystore was downloaded or committed.
 
-This AAB has the required package but needs signing-key recovery before Play can accept it. The store
+This AAB has the required package and was subsequently accepted for internal testing on October 14. The store
 package identity is permanent; the visible app name is separately editable.
 See [Google's documentation](https://support.google.com/googleplay/android-developer/answer/9859152)
 and [manual deployment instructions](android-manual-deployment.md).
