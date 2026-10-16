@@ -31,3 +31,14 @@ assert.equal(Entry.purchaseFx(cad,position),null);
 assert.equal(Entry.stockRisk(cadPosition,10,1.3,null),null);
 const historical=Entry.apply({...cad,positions:[cadPosition]}, {[Entry.key(cad,cadPosition)]:{currency:'USD',stockPrice:10,optionPrice:null,entryFx:1.4}});
 assert.equal(historical.positions[0].cost,1400);assert.equal(historical.positions[0].entryFx,1.4);
+
+// Purchase confirmation: commission belongs in the stock basis once.
+{
+ const settings=require('../profile_settings.js');
+ const basis=settings.costBasis({quantity:500,priceUsd:25.115,feesUsd:6.95,fx:1.3855,cadTotal:17408.05});
+ const assert=require('node:assert/strict');
+ assert.equal(basis.usdTotal,12564.45);
+ assert.equal(basis.cadPerShare,34.8161);
+ assert.throws(()=>settings.costBasis({...basis,cadTotal:100}));
+ assert.throws(()=>settings.costBasis({...basis,quantity:0}));
+}

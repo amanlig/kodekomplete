@@ -251,7 +251,7 @@ function updateFilters(){
 document.querySelector('#stock-filter').addEventListener('change',updateFilters);
 document.querySelector('#account-filter').addEventListener('change',updateFilters);
 renderAccounts();
-</script><script>__ROLL_PRICING__</script><script>__ROLL_UI__</script><script>__STOCK_DETAILS_UI__</script><script>__PROFILE_UI__</script><script>__FX_SAMPLES_UI__</script></body></html>'''
+</script><script>__ROLL_PRICING__</script><script>__ROLL_UI__</script><script>__STOCK_DETAILS_UI__</script><script>__PROFILE_UI__</script><script>__FX_SAMPLES_UI__</script><script>__OPTION_PREMIUMS_UI__</script></body></html>'''
 
 
 def main():
@@ -306,6 +306,7 @@ def main():
                                .replace('__ENTRY_PRICES__', (ROOT/'entry_prices.js').read_text())
                                .replace('__PROFILE_SETTINGS__', (ROOT/'profile_settings.js').read_text())
                                .replace('__PROFILE_UI__', (ROOT/'profile_ui.js').read_text())
+                               .replace('__OPTION_PREMIUMS_UI__', (ROOT/'option_premiums_ui.js').read_text())
                                .replace('__FX_SAMPLES_UI__', (ROOT/'fx_samples_ui.js').read_text())
                                .replace('__ROLL_PRICING__', (ROOT/'roll_pricing.js').read_text())
                                .replace('__ROLL_UI__', (ROOT/'roll_ui.js').read_text())

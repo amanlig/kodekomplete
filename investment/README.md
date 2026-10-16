@@ -88,3 +88,43 @@ Install Tesseract with English language data on a new machine. The current local
 setup uses isolated Ubuntu packages under `.tools/ocr` without requiring sudo.
 Restart `dashboard_server.py` after updating its source. Existing browser profile
 and holding settings remain separate from the SQLite dataset.
+
+## Financial models
+
+New model projects live under [`../models/financials/`](../models/financials/README.md).
+The CIBC FX model workspace is [`cibc_fx/`](../models/financials/cibc_fx/README.md).
+Reviewed transaction data stays in `data/fx-samples.sqlite3`; model training must
+read it without modifying the saved samples.
+
+## Opening option premiums
+
+Expand **Option premiums · record opening sale** to record an opening call sale.
+Enter account, ticker, expiry, strike, contracts, settlement date, USD premium per
+share, total USD fees, applied FX and actual net CAD received. Review before saving.
+The `option_premiums` table in `data/fx-samples.sqlite3` persists confirmations
+separately from FX model training samples. Exact duplicate confirmations are
+rejected. A single exact match on account/ticker/expiry/strike/contract quantity
+supplies the holding's net premium for dashboard calculations. Multiple matching
+opening lots require explicit aggregation; the dashboard does not choose a lot.
+This form supports standard calls with a 100-share multiplier. It does not execute
+trades or refresh the FX model.
+
+## Closing simulator and AI assessments
+
+The application owns OpenAI integration; statistical models stay independent.
+See [setup and usage](CLOSING_SIMULATOR.md). From the repository root, run
+`python3 investment/setup_openai.py` for server-side key setup and
+`python3 investment/close_simulator_server.py` to serve the simulator on port 8766.
+
+## Shared stock cost basis
+
+Stock purchase basis is stored in `stock_cost_basis` in `data/fx-samples.sqlite3`,
+keyed by account, ticker and account currency. Profile → Settings saves it through
+`/api/stock-cost-basis`. Average cost is calculated from total cost and quantity.
+The closing simulator and assessment service read this same table. Reload the
+simulator or refresh its quotes after saving changes. Old browser-only basis
+records are backed up locally and can be imported with the settings import button;
+that explicit import replaces matching database bases. Profile names, bid thresholds
+and option entry overrides remain browser preferences. The old seed JSON has been
+archived; it is not a runtime source. Migration can be rerun without replacing
+later database edits.

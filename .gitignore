@@ -19,3 +19,8 @@
 /investment/archive/
 
 !/investment/tests/test_public_fx_samples.py
+
+!/investment/tests/test_public_close_recommendations.py
+!/investment/tests/test_public_close_refresh.py
+!/investment/tests/test_public_option_premiums.py
+!/investment/tests/test_public_stock_basis.py

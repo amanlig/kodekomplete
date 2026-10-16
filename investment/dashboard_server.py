@@ -10,6 +10,9 @@ import sys
 import threading
 
 import fx_samples
+import option_premiums
+import stock_basis
+import sqlite3
 from macro_data import usd_cad
 from roll_candidates import INPUTS, SYMBOLS, output_path
 
@@ -66,7 +69,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         self.wfile.write(payload)
 
     def do_POST(self):
-        if self.path in {'/api/fx-samples', '/api/fx-samples/ocr', '/api/fx-samples/delete'}:
+        if self.path in {'/api/fx-samples', '/api/fx-samples/ocr', '/api/fx-samples/delete', '/api/option-premiums', '/api/stock-cost-basis'}:
             port = self.server.server_port
             if self.headers.get('Origin') not in {f'http://localhost:{port}', f'http://127.0.0.1:{port}'}:
                 self.send_json({'error': 'Use this dashboard origin.'}, 403)
@@ -77,7 +80,12 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                 if not 0 < length <= limit:
                     raise ValueError('Request is empty or too large (image limit: 8 MB).')
                 body = self.rfile.read(length)
-                if self.path.endswith('/ocr'):
+                if self.path == '/api/stock-cost-basis':
+                    request=json.loads(body)
+                    self.send_json({'bases': stock_basis.save_many(request.get('bases'))})
+                elif self.path == '/api/option-premiums':
+                    self.send_json(option_premiums.save(json.loads(body)), 201)
+                elif self.path.endswith('/ocr'):
                     self.send_json(fx_samples.ocr(body))
                 elif self.path.endswith('/delete'):
                     request = json.loads(body)
@@ -91,7 +99,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                     self.send_json(fx_samples.save(json.loads(body)), 201)
             except (ValueError, TypeError, KeyError) as error:
                 self.send_json({'error': str(error)}, 400)
-            except (OSError, subprocess.SubprocessError):
+            except (OSError, sqlite3.Error, subprocess.SubprocessError):
                 self.send_json({'error': 'Local OCR or storage unavailable. You can enter the fields manually.'}, 503)
             return
         if self.path != '/api/roll-candidates/refresh':
@@ -139,6 +147,12 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             ROLL_REFRESH_LOCK.release()
 
     def do_GET(self):
+        if self.path == '/api/stock-cost-basis':
+            self.send_json({'bases': stock_basis.records()})
+            return
+        if self.path == '/api/option-premiums':
+            self.send_json({'premiums': option_premiums.records()})
+            return
         if self.path == '/api/fx-samples':
             self.send_json({'samples': fx_samples.records()})
             return
