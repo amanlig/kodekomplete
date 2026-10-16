@@ -3,7 +3,7 @@
 | Document field | Value |
 | --- | --- |
 | Status | Draft — requirements captured; implementation architecture pending |
-| Updated | 2026-09-30 |
+| Updated | 2026-10-16 (deployment tooling/status; broader design remains draft) |
 | Owner | TBD |
 | Structure | arc42 |
 | Format | GitHub Markdown with Mermaid diagrams |
@@ -599,3 +599,20 @@ Before implementation, prioritize the route source/model, local ownership and gu
 ### Implementation schedule
 
 See the [vertical implementation plan](docs/project-plan.md): Electrical and Store deployment/beta distribution run in parallel from October 5, 2026, followed by Engine, Route, Authentication/authorization and Route story in two-week feature slices. The deployment workstream establishes repeatable builds, installation and tester updates early and continues throughout implementation. This establishes the implementation foundation for the 2027 beta; release qualification is scheduled separately.
+
+
+## 7. Deployment View
+
+### 7.1 Android and iOS build/distribution physical architecture
+
+The shared Expo/React Native app is developed in Windows/WSL2 and built by Expo
+EAS cloud workers. Android uses Gradle/Android SDK and manual Google Play Console
+AAB upload; iOS uses Xcode/iOS SDK and EAS Submit to App Store Connect/TestFlight.
+
+![Physical build and deployment tools](docs/images/mobile-build-deployment.svg)
+
+See the [detailed mobile build/deployment architecture](docs/mobile-build-deployment.md)
+for signing, tools, commands, tester distribution and current verification status.
+This is a delivery infrastructure view, separate from the boat/instrument diagram.
+The current mobile binaries are UI/demo builds; native Rust/Bluetooth reception
+and phone-local SQLite remain integration work.

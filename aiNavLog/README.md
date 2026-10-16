@@ -92,6 +92,7 @@ Physical Bluetooth validation remains pending.
 - [User interface](user-interface/README.md)
 - [Live monitoring guide](docs/victron-live-monitoring.md)
 - [Architecture](architecture.md)
+- [Android/iOS physical build and deployment](docs/mobile-build-deployment.md)
 
 ## Demonstrate simulator data reaching the UI
 

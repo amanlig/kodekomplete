@@ -43,3 +43,11 @@ cloud build was not started for emulator setup.
 Sources: [Google virtual-device guide](https://developer.android.com/studio/run/managing-avds),
 [Windows acceleration](https://developer.android.com/studio/run/emulator-acceleration),
 [Expo APK guidance](https://docs.expo.dev/build-reference/apk/).
+
+## Installation update — October 16, 2026
+
+The owner reported successful installation in the emulator. The earlier
+availability blocker is superseded for this installation. Launch, navigation,
+demo readings, background/resume and installed version still need validation;
+physical-device installation remains a separate milestone. See the
+[October 16 handoff](status/status-2026-10-16.md).

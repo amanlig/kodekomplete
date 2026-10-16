@@ -1,5 +1,11 @@
 # Mobile development workflow — Electrical slice
 
+**October 16 update:** Apple membership is active. Android emulator installation
+and Home launch are confirmed. Signed iOS 1.0.0 (1) was received by Apple and is
+uploaded to TestFlight; owner confirms physical iPhone 13 installation. See the
+[build/deployment physical architecture](mobile-build-deployment.md) and
+[iPhone workflow](ios-testflight.md). Older enrollment entries below are historical.
+
 **October 13 update:** Google Play verification is complete; Apple remains pending.
 Expo is authenticated and the app is linked to the company's organization project.
 The first standalone Android UI/demo AAB build succeeded for manual Google Play
