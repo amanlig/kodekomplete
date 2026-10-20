@@ -42,3 +42,6 @@
 !/coveredCallOptimizer/tests/test_public_optimizer_recommendations.py
 
 !/coveredCallOptimizer/index.html
+
+# aiNavLog is maintained in its own nested Git repository.
+/aiNavLog/
