@@ -6,7 +6,7 @@ from model import predict
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[2]
-rows,_=load(ROOT/'investment/data/fx-samples.sqlite3')
+rows,_=load(ROOT/'coveredCallOptimizer/data/fx-samples.sqlite3')
 model=json.loads((HERE/'artifacts/model.json').read_text())
 report=json.loads((HERE/'evaluation/holdout.json').read_text())
 evaluated={'parameters':report['evaluated_parameters']}
@@ -60,7 +60,7 @@ const ex=d3.scaleLinear().domain([0,d3.max(test,d=>d.usd_amount)*1.06]).range([m
 svg=frame('error',ex,ey,'USD converted','Prediction error (CAD)');svg.append('line').attr('x1',m.left).attr('x2',W-m.right).attr('y1',ey(0)).attr('y2',ey(0)).attr('stroke','#888').attr('stroke-dasharray','6 4');dots(svg,test,d=>ex(d.usd_amount),d=>ey(d.prediction.estimated_cad-d.cad_amount));
 </script>'''
 html=html.replace('__UML__',(HERE/'interactions.svg').read_text())
-html=html.replace('__D3__',(ROOT/'investment/vendor/d3.min.js').read_text()).replace('__DATA__',json.dumps(points)).replace('__MODEL__',json.dumps(model)).replace('__REPORT__',json.dumps(report))
+html=html.replace('__D3__',(ROOT/'coveredCallOptimizer/vendor/d3.min.js').read_text()).replace('__DATA__',json.dumps(points)).replace('__MODEL__',json.dumps(model)).replace('__REPORT__',json.dumps(report))
 output=HERE/'evaluation/data-plots.html'
 output.write_text(html)
 print(output)

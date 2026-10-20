@@ -37,7 +37,7 @@ def load(path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--database', type=Path, default=ROOT/'investment/data/fx-samples.sqlite3')
+    parser.add_argument('--database', type=Path, default=ROOT/'coveredCallOptimizer/data/fx-samples.sqlite3')
     args = parser.parse_args()
     rows, excluded = load(args.database)
     earlier, later = split_dates(rows)

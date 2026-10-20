@@ -1,26 +1,42 @@
 # Publish the application; keep local financial records and authorization private.
-/investment/*
-!/investment/*.py
-!/investment/*.js
-!/investment/*.md
-!/investment/docs/
-!/investment/vendor/
-!/investment/examples/
-!/investment/tests/
-/investment/tests/*
-!/investment/tests/test_public_calculations.js
-!/investment/tests/test_public_portfolio.py
-/investment/**/__pycache__/
-/investment/**/*.pyc
-/investment/.secrets/
-/investment/data/
-/investment/reports/
-/investment/status/
-/investment/archive/
+/coveredCallOptimizer/*
+!/coveredCallOptimizer/*.py
+!/coveredCallOptimizer/*.js
+!/coveredCallOptimizer/*.md
+!/coveredCallOptimizer/docs/
+!/coveredCallOptimizer/vendor/
+!/coveredCallOptimizer/examples/
+!/coveredCallOptimizer/tests/
+/coveredCallOptimizer/tests/*
+!/coveredCallOptimizer/tests/test_public_calculations.js
+!/coveredCallOptimizer/tests/test_public_portfolio.py
+/coveredCallOptimizer/**/__pycache__/
+/coveredCallOptimizer/**/*.pyc
+/coveredCallOptimizer/.secrets/
+/coveredCallOptimizer/data/
+/coveredCallOptimizer/reports/
+/coveredCallOptimizer/status/
+/coveredCallOptimizer/archive/
 
-!/investment/tests/test_public_fx_samples.py
+!/coveredCallOptimizer/tests/test_public_fx_samples.py
 
-!/investment/tests/test_public_close_recommendations.py
-!/investment/tests/test_public_close_refresh.py
-!/investment/tests/test_public_option_premiums.py
-!/investment/tests/test_public_stock_basis.py
+!/coveredCallOptimizer/tests/test_public_close_recommendations.py
+!/coveredCallOptimizer/tests/test_public_close_refresh.py
+!/coveredCallOptimizer/tests/test_public_option_premiums.py
+!/coveredCallOptimizer/tests/test_public_stock_basis.py
+
+# Source page for the covered-call exit optimizer (no private financial data).
+!/coveredCallOptimizer/covered-call-optimizer.html
+
+!/coveredCallOptimizer/tests/test_public_usd_premiums.py
+
+# Retain archived dashboard source; generated financial HTML stays private.
+!/coveredCallOptimizer/archive/
+/coveredCallOptimizer/archive/*
+!/coveredCallOptimizer/archive/equity-dashboard/
+/coveredCallOptimizer/archive/equity-dashboard/*
+!/coveredCallOptimizer/archive/equity-dashboard/*.py
+!/coveredCallOptimizer/archive/equity-dashboard/*.js
+!/coveredCallOptimizer/archive/equity-dashboard/*.md
+
+!/coveredCallOptimizer/tests/test_public_optimizer_recommendations.py

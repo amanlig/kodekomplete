@@ -1,7 +1,7 @@
 # CIBC FX conversion model
 
 A Python standard-library baseline trained on reviewed transactions in
-`investment/data/fx-samples.sqlite3`. Training opens SQLite read-only.
+`coveredCallOptimizer/data/fx-samples.sqlite3`. Training opens SQLite read-only.
 
 For each conversion direction, training takes the median of
 `applied_rate / yahoo_close - 1`. Prediction multiplies the supplied reference
@@ -62,7 +62,7 @@ It contains no OpenAI client, credentials, recommendation service or application
 server. The investment app consumes the fitted parameters and pure prediction
 function through its own adapter; model training and prediction run independently.
 
-See the [investment closing-simulator documentation](../../../investment/CLOSING_SIMULATOR.md)
+See the [investment closing-simulator documentation](../../../coveredCallOptimizer/CLOSING_SIMULATOR.md)
 for application setup, quote refresh and AI assessments.
 
 ## Hugging Face publication
