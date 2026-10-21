@@ -1,6 +1,0 @@
-# Private model outputs and temporary Python files.
-**/artifacts/
-**/evaluation/
-**/__pycache__/
-**/*.pyc
-**/.secrets/
